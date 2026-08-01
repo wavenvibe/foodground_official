@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Green scale (브랜드) */
+  --color-green-900: #1E3A26;
+  --color-green-700: #295137;
+  --color-green-500: #03C75A;
+  --color-green-300: #55D78F;
+  --color-green-100: #E5EDE5;
+  --color-green-50: #ECF7ED;
+
+  /* Surface & Text */
+  --color-bg: #F5F6F1;
+  --color-paper: #FFFFFF;
+  --color-ink: #22312A;
+  --color-ink-2: #45524B;
+  --color-rule: #D9DED4;
+
+  /* Warning */
+  --color-warn: #C75A03;
+  --color-warn-bg: #FBEBDC;
+
+  /* Font */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, Arial, sans-serif;
+}
+
+:root {
+  --green-900: #1E3A26;
+  --green-700: #295137;
+  --green-500: #03C75A;
+  --green-300: #55D78F;
+  --green-100: #E5EDE5;
+  --green-50:  #ECF7ED;
+  --bg:     #F5F6F1;
+  --paper:  #FFFFFF;
+  --ink:    #22312A;
+  --ink-2:  #45524B;
+  --rule:   #D9DED4;
+  --warn:    #C75A03;
+  --warn-bg: #FBEBDC;
+  --green-cta-text: #06331A;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.65;
+}
+
+* {
+  box-sizing: border-box;
+}

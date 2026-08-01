@@ -1,0 +1,7 @@
+# Python 적재·검증 스크립트용 의존성 (D 드라이브 자립판)
+# Node.js/Next.js 와는 별개. scripts/ingest_*.py, scripts/verify.py 실행 시 필요.
+
+python-dotenv>=1.0        # .env 읽기 (없으면 환경변수 그대로 사용)
+
+# ---- Phase 3 Supabase/PostgreSQL 전환 시 주석 해제 ----
+# psycopg2-binary>=2.9
