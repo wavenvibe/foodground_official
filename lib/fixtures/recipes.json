@@ -1,0 +1,18 @@
+[
+  {
+    "recipe_id": 1,
+    "title": "김치찌개",
+    "category_large": "찌개",
+    "category_mid": "김치찌개",
+    "category_small": null,
+    "servings": 4
+  },
+  {
+    "recipe_id": 2,
+    "title": "된장찌개",
+    "category_large": "찌개",
+    "category_mid": "된장찌개",
+    "category_small": null,
+    "servings": 4
+  }
+]

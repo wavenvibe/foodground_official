@@ -7,6 +7,7 @@ interface SearchFormProps {
   defaultValue?: string;
   placeholder?: string;
   className?: string;
+  target?: string;
 }
 
 // @MX:NOTE: [AUTO] Client-only form island — only this component needs 'use client' on the home page
@@ -14,6 +15,7 @@ export default function SearchForm({
   defaultValue = "",
   placeholder = "업체명, 지역으로 검색...",
   className,
+  target = "/facilities",
 }: SearchFormProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,7 +27,7 @@ export default function SearchForm({
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     startTransition(() => {
-      router.push(`/search${q ? `?${params.toString()}` : ""}`);
+      router.push(`${target}${q ? `?${params.toString()}` : ""}`);
     });
   }
 

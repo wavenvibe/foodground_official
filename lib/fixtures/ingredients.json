@@ -1,0 +1,18 @@
+[
+  {
+    "ingredient_id": 1,
+    "ingredient_name": "김치"
+  },
+  {
+    "ingredient_id": 2,
+    "ingredient_name": "돼지고기"
+  },
+  {
+    "ingredient_id": 3,
+    "ingredient_name": "두부"
+  },
+  {
+    "ingredient_id": 4,
+    "ingredient_name": "대파"
+  }
+]

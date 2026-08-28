@@ -1,68 +1,57 @@
-# Brand Voice
+# Foodground brand voice input
 
-_TBD — Complete this file via the brand interview (/moai design) before running any design or copywriting tasks._
-
----
+This file contains user-approved communication constraints for Claude Code +
+MoAI to use during G3. Detailed copy is a design output, not fixed here.
 
 ## Tone
 
-<!-- Describe the overall emotional register of your brand communication.
-Examples: "confident and direct", "warm and approachable", "technical and authoritative", "playful yet professional" -->
+tone: calm, practical, trustworthy, and professionally approachable
 
-tone: _TBD_
+formal_informal: 4/5 toward formal
+serious_playful: 4/5 toward serious, with light warmth
+technical_accessible: balanced; explain food-industry terms plainly
 
-## Register Spectrum
+## Vocabulary preferences
 
-<!-- Where does your brand sit on each axis? Use a 1–5 scale or descriptive labels. -->
+preferred_terms:
+  - 업체 찾기
+  - 제조시설
+  - 대체 레시피
+  - 식재료
+  - 제품화 준비
+  - 사전점검
+  - 확인이 필요한 항목
+  - 근거와 출처
+  - 문의 내용 작성
 
-formal_informal: _TBD_
-serious_playful: _TBD_
-technical_accessible: _TBD_
+avoided_terms:
+  - 혁신적인
+  - 압도적인
+  - 완벽한
+  - 무조건 정확한
+  - AI가 보장하는
+  - 법적 적합성 확정
+  - TIPS 성과 자랑
 
-## Vocabulary Preferences
+## Audience familiarity
 
-<!-- List words or phrases that ARE and ARE NOT part of your brand voice. -->
+jargon_level: medium
+assumed_knowledge: 사용자는 식품개발·제조·구매 업무를 알지만 데이터베이스, AI 모델, TIPS 성능지표를 알 필요는 없다.
 
-preferred_terms: []
-  # Examples:
-  # - "build" (not "leverage")
-  # - "simple" (not "seamless")
-  # - "team" (not "resources")
+## Example phrases
 
-avoided_terms: []
-  # Examples:
-  # - "innovative"
-  # - "cutting-edge"
-  # - "game-changing"
+examples:
+  - 조건에 맞는 제조업체를 찾아 비교해 보세요.
+  - 사용 중인 식재료를 바꾸었을 때 달라지는 점을 확인할 수 있습니다.
+  - 표시문구를 검토하고 확인이 필요한 항목과 근거를 정리합니다.
+  - 결과는 제품 검토를 돕는 참고자료이며 최종 판단은 사용자가 합니다.
 
-## Audience Familiarity
+## Anti-examples
 
-<!-- How much does your audience know about your domain? -->
+anti_examples:
+  - 혁신적인 AI가 최적의 정답을 즉시 보장합니다.
+  - TIPS 성능지표를 100% 달성한 플랫폼입니다.
+  - 이 결과만으로 법적 적합성이 확정됩니다.
 
-jargon_level: _TBD_
-  # Options: low (no jargon), medium (some domain terms), high (expert audience)
-
-assumed_knowledge: _TBD_
-  # Describe what the reader already knows when they land on your site.
-
-## Example Phrases
-
-<!-- Provide 3–5 example phrases that capture your brand voice.
-These will be used as stylistic anchors during copy generation. -->
-
-examples: []
-  # - "We built this for teams who move fast and ship often."
-  # - "No fluff. Just the tool you need."
-
-## Anti-Examples
-
-<!-- Phrases that do NOT sound like your brand. -->
-
-anti_examples: []
-  # - "Unlock your potential with our revolutionary platform."
-  # - "In today's fast-paced digital landscape..."
-
----
-
-_Last updated: _TBD__
-_Populated by: brand interview via /moai design_
+Last updated: 2026-08-12
+Source: user-approved Foodground scope and communication direction

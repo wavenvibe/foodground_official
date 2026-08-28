@@ -28,7 +28,7 @@ export default function FacilityCardItem({
       style={{ background: "var(--paper)", border: "1px solid var(--rule)" }}
     >
       <Link
-        href={`/b/${mgt_no}`}
+        href={`/facilities/${mgt_no}`}
         className="block"
         aria-label={`${name} 상세 보기`}
       >

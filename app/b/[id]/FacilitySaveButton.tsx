@@ -41,6 +41,7 @@ export default function FacilitySaveButton({
 
   useEffect(() => {
     const items = loadSaved();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaved(items.some((item) => item.mgt_no === mgtNo));
     setMounted(true);
   }, [mgtNo]);
