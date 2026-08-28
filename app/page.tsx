@@ -25,9 +25,15 @@ const POPULAR_CATEGORIES = [
 ] as const;
 
 const QUICK_FILTERS = [
-  { label: "HACCP ✓", href: "/search?haccp=1" },
-  { label: "판매중지 없음", href: "/search?noSuspension=1" },
-  { label: "최근 생산이력 ≤ 12개월", href: "/search" },
+  { label: "HACCP ✓", href: "/facilities?haccp=1" },
+  { label: "제조시설 전체", href: "/facilities" },
+] as const;
+
+const FEATURES = [
+  { label: "레시피", href: "/recipes", description: "70,000+ 식품 레시피 탐색" },
+  { label: "식재료", href: "/ingredients", description: "식재료 성분·특성 검색" },
+  { label: "대체 식재료", href: "/substitutes", description: "영양·조리 유사도 기반 대체 추천" },
+  { label: "제조시설", href: "/facilities", description: "94,000+ HACCP 인증 업체 검색" },
 ] as const;
 
 function formatDate(iso: string): string {
@@ -109,7 +115,7 @@ export default async function HomePage() {
               {POPULAR_CATEGORIES.map((cat) => (
                 <li key={cat.bizType}>
                   <Link
-                    href={`/search?bizType=${encodeURIComponent(cat.bizType)}`}
+                    href={`/facilities?bizType=${encodeURIComponent(cat.bizType)}`}
                     className="flex flex-col items-center justify-center rounded-lg p-6 text-center transition-shadow hover:shadow-md"
                     style={{
                       background: "var(--paper)",
@@ -124,6 +130,50 @@ export default async function HomePage() {
                       style={{ color: "var(--ink)" }}
                     >
                       {cat.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Feature navigation */}
+        <section
+          className="px-4 py-12 border-t"
+          style={{ borderColor: "var(--rule)" }}
+          aria-labelledby="features-heading"
+        >
+          <div className="mx-auto max-w-5xl">
+            <h2
+              id="features-heading"
+              className="text-xl font-bold mb-6"
+              style={{ color: "var(--green-900)" }}
+            >
+              주요 기능
+            </h2>
+            <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4" role="list">
+              {FEATURES.map((f) => (
+                <li key={f.href}>
+                  <Link
+                    href={f.href}
+                    className="flex flex-col rounded-lg p-5 transition-shadow hover:shadow-md"
+                    style={{
+                      background: "var(--paper)",
+                      border: "1px solid var(--rule)",
+                    }}
+                  >
+                    <span
+                      className="text-sm font-semibold mb-1"
+                      style={{ color: "var(--ink)" }}
+                    >
+                      {f.label}
+                    </span>
+                    <span
+                      className="text-xs leading-snug"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      {f.description}
                     </span>
                   </Link>
                 </li>

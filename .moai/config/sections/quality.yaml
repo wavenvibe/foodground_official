@@ -1,13 +1,13 @@
 constitution:
   # Development methodology selection
   # Options: ddd (Domain-Driven Development), tdd (Test-Driven Development)
-  development_mode: "tdd"
+  development_mode: "ddd"
 
   # Default session effort level for Opus 4.7+.
   # Applied when no agent-specific effort override exists.
   # Valid values: "low", "medium", "high", "xhigh", "max"
   # "xhigh" and "max" require Opus 4.7.
-  session_effort_default: "xhigh"
+  session_effort_default: "high"
 
   # Enable TRUST 5 quality framework enforcement
   enforce_quality: true
@@ -135,7 +135,7 @@ constitution:
     # Simplicity principle
     simplicity:
       # Maximum parallel tasks to prevent complexity
-      max_parallel_tasks: 10
+      max_parallel_tasks: 3
 
   # LSP integration settings
   lsp_integration:

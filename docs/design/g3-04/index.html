@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FoodGround G3-04 화면상태 기준</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Food<em>Ground</em></span></div>
+      <div class="top-note">G3-04 · Next.js 적용 및 공통 화면상태</div>
+    </div>
+  </header>
+
+  <main>
+    <p class="eyebrow">Implementation decision</p>
+    <h1>사용자가 멈추지 않도록<br>모든 상태에 다음 행동을 둡니다</h1>
+    <p class="lead">A안 브랜드 적용 2안을 Next.js App Router와 Tailwind CSS v4에 그대로 연결합니다. 상태는 단순 문구가 아니라 원인, 현재 결과, 다음 행동을 함께 제공합니다.</p>
+    <div class="decision"><strong>확정:</strong> 신규 UI 라이브러리를 추가하지 않고 Server Component 우선, 필요한 입력·필터·저장만 Client Component로 구현합니다.</div>
+
+    <section aria-labelledby="states-title">
+      <p class="eyebrow">State contract</p>
+      <h2 id="states-title">공통 8개 화면상태</h2>
+      <p class="section-copy">색상만으로 구분하지 않고 제목·설명·행동을 함께 표시합니다.</p>
+
+      <div class="state-grid">
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-01</span><span class="chip">loading</span></div>
+          <h3>로딩</h3><p>레이아웃을 유지하며 결과 영역만 기다립니다.</p>
+          <div class="state-ui" aria-label="검색결과 로딩 예시"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-02</span><span class="chip">empty</span></div>
+          <h3>빈 결과</h3><p>오류와 구분하고 조건을 바꿀 수 있게 합니다.</p>
+          <div class="state-ui"><div class="state-title">검색결과가 없습니다</div><p class="state-copy">선택한 조건을 줄이거나 검색어를 바꿔보세요.</p><div class="actions"><a class="button secondary" href="#">조건 초기화</a></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-03</span><span class="chip">error</span></div>
+          <h3>처리 오류</h3><p>빈 결과로 바꾸지 않고 재시도와 추적번호를 제공합니다.</p>
+          <div class="state-ui tone-error"><div class="state-title">결과를 불러오지 못했습니다</div><p class="state-copy">잠시 후 다시 시도해 주세요. 추적번호 FG-7H2K</p><div class="actions"><a class="button" href="#">다시 시도</a></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-04</span><span class="chip">permission</span></div>
+          <h3>로그인·권한없음</h3><p>비로그인과 타인자료 접근을 서로 다른 행동으로 처리합니다.</p>
+          <div class="state-ui tone-info"><div class="state-title">로그인이 필요한 기능입니다</div><p class="state-copy">로그인 후 원래 보던 화면으로 돌아옵니다.</p><div class="actions"><a class="button point" href="#">로그인</a><a class="button secondary" href="#">공개화면으로</a></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-05</span><span class="chip">external</span></div>
+          <h3>외부서비스 장애</h3><p>OCR·모델 장애를 격리하고 직접입력 경로를 유지합니다.</p>
+          <div class="state-ui tone-warn"><div class="state-title">이미지 문자추출을 사용할 수 없습니다</div><p class="state-copy">표시문구를 직접 입력하면 규칙검사를 계속할 수 있습니다.</p><div class="actions"><a class="button" href="#">직접 입력</a></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-06</span><span class="chip">success</span></div>
+          <h3>저장 완료</h3><p>실제 서버 저장이 확인된 뒤에만 완료로 표시합니다.</p>
+          <div class="state-ui tone-success"><div class="state-title">프로젝트에 저장했습니다</div><p class="state-copy">저장된 후보 5건 · 방금 전</p><div class="actions"><a class="button secondary" href="#">프로젝트 보기</a></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-07</span><span class="chip">refreshing</span></div>
+          <h3>갱신 중</h3><p>기존 결과를 유지하고 중복 실행만 막습니다.</p>
+          <div class="state-ui"><div class="progress-row"><span class="spinner" aria-hidden="true"></span><div><div class="state-title">최신 결과를 확인하고 있습니다</div><p class="state-copy">현재 결과는 계속 볼 수 있습니다.</p></div></div></div>
+        </article>
+
+        <article class="state-card">
+          <div class="state-meta"><span class="state-id">ST-08</span><span class="chip">evidence</span></div>
+          <h3>근거 부족</h3><p>확정판정을 만들지 않고 부족한 근거와 보완방법을 밝힙니다.</p>
+          <div class="state-ui tone-warn"><div class="state-title">관련 근거가 충분하지 않습니다</div><p class="state-copy">규칙결과만 참고하고 표시기준 원문을 추가로 확인하세요.</p><div class="actions"><a class="button secondary" href="#">규칙결과 보기</a></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="routes-title">
+      <p class="eyebrow">App Router convention</p>
+      <h2 id="routes-title">라우트 단위 처리</h2>
+      <p class="section-copy">공통 상태와 Next.js 특수 파일의 역할을 구분합니다.</p>
+      <table class="route-table">
+        <thead><tr><th>파일</th><th>역할</th><th>사용자 행동</th></tr></thead>
+        <tbody>
+          <tr><td data-label="파일"><code>loading.tsx</code></td><td data-label="역할">라우트 전환·서버 조회 스켈레톤</td><td data-label="행동">대기, 취소 없이 기존 탐색맥락 유지</td></tr>
+          <tr><td data-label="파일"><code>error.tsx</code></td><td data-label="역할">예상하지 못한 세그먼트 오류</td><td data-label="행동">재시도·안전한 복귀·추적번호</td></tr>
+          <tr><td data-label="파일"><code>not-found.tsx</code></td><td data-label="역할">없는 업체·제품·프로젝트·경로</td><td data-label="행동">목록 또는 검색으로 복귀</td></tr>
+          <tr><td data-label="파일"><code>StatePanel</code></td><td data-label="역할">빈 결과·권한·외부장애·근거부족</td><td data-label="행동">상태별 승인된 다음 행동</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="footer-note">G3-04 설계 산출물 · 정적 검토용 예시 데이터 · 실제 앱과 Supabase 미변경</p>
+  </main>
+</body>
+</html>

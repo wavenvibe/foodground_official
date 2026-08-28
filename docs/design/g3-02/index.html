@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>푸드그라운드 G3-02 디자인 시안 비교</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="board-body">
+  <header class="board-header">
+    <div class="container">
+      <p class="section-kicker">FOODGROUND · G3-02</p>
+      <h1>와이어프레임·토큰·컴포넌트 시안</h1>
+      <p class="lead">승인된 기능범위는 그대로 유지하고, 서비스의 첫인상과 정보 우선순위가 다른 세 가지 방향을 비교합니다.</p>
+      <nav class="board-nav"><a href="#concepts">방향 3안</a><a href="#decision">비교표</a><a href="#tokens">디자인 토큰</a><a href="#components">컴포넌트</a><a href="#states">화면 상태</a><a href="#screens">상세 화면</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="board-section" id="concepts">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">방향 비교</p><h2>같은 기능, 다른 강조점</h2><p class="muted">A안은 전체 균형과 구현 효율을 기준으로 추천합니다.</p></div></div>
+        <div class="concept-grid">
+          <article class="concept-card recommended" id="concept-a">
+            <div class="concept-meta"><div class="concept-label"><strong>A. 작업 중심 B2B</strong><span class="recommend-pill">추천</span></div><p>검색에서 제품화·후보검토·점검으로 자연스럽게 이어지는 균형형.</p></div>
+            <div class="concept-preview"><div class="mini-site"><div class="mini-header"><span class="mini-logo">FOODGROUND</span><span class="mini-nav">찾기　제품화　공동구매　내 활동</span></div><div class="mini-a-hero"><div><div class="mini-title"></div><div class="mini-copy"></div><div class="mini-copy" style="width:72%;margin-top:5px"></div></div><div class="mini-search"><div class="mini-tabs"></div><div class="mini-input"></div></div></div><div class="mini-cards"><div class="mini-card"></div><div class="mini-card"></div><div class="mini-card"></div><div class="mini-card"></div></div></div></div>
+          </article>
+          <article class="concept-card" id="concept-b">
+            <div class="concept-meta"><div class="concept-label"><strong>B. 데이터 탐색형</strong></div><p>많은 데이터를 빠르게 찾는 사용자에게 유리한 고밀도 탐색형.</p></div>
+            <div class="concept-preview"><div class="mini-site"><div class="mini-header" style="background:#183b35"><span class="mini-logo">FOODGROUND</span><span class="mini-nav">데이터　프로젝트　공동구매</span></div><div class="mini-b"><div class="mini-b-side"><div class="mini-side-item active"></div><div class="mini-side-item"></div><div class="mini-side-item"></div><div class="mini-side-item"></div></div><div class="mini-b-main"><div class="mini-data-search"></div><div class="mini-stat-row"><div class="mini-stat"></div><div class="mini-stat"></div><div class="mini-stat"></div></div><div class="mini-list"><div class="mini-list-item"></div><div class="mini-list-item"></div><div class="mini-list-item"></div></div></div></div></div></div>
+          </article>
+          <article class="concept-card theme-c" id="concept-c">
+            <div class="concept-meta"><div class="concept-label"><strong>C. 협업 마켓형</strong></div><p>공동구매·업체문의·파트너 연결을 전면에 둔 친화형.</p></div>
+            <div class="concept-preview"><div class="mini-site"><div class="mini-header"><span class="mini-logo">FOODGROUND</span><span class="mini-nav">찾기　제품화　공동구매　문의</span></div><div class="mini-c-hero"><div class="mini-title"></div><div class="mini-copy"></div><div class="mini-copy" style="width:72%;margin-top:5px"></div></div><div class="mini-community"><div class="mini-post"></div><div class="mini-post"></div><div class="mini-post"></div><div class="mini-post"></div></div></div></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-section" id="decision">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">선택 기준</p><h2>발주자 관점 비교</h2></div></div>
+        <table class="decision-table">
+          <thead><tr><th>항목</th><th>A. 작업 중심 B2B</th><th>B. 데이터 탐색형</th><th>C. 협업 마켓형</th></tr></thead>
+          <tbody>
+            <tr><td>첫인상</td><td>전문적이고 균형 잡힌 제품화 도구</td><td>검색·분석에 강한 데이터베이스</td><td>참여가 쉬운 비즈니스 커뮤니티</td></tr>
+            <tr><td>강점</td><td>9개 흐름을 한 IA에 자연스럽게 수용</td><td>대량 검색과 비교의 정보밀도 우수</td><td>공동구매·문의 전환이 직관적</td></tr>
+            <tr><td>주의점</td><td>업무카드 우선순위를 명확히 유지</td><td>초보 사용자에게 다소 복잡할 수 있음</td><td>데이터·제품화 전문성이 약해 보일 수 있음</td></tr>
+            <tr><td>모바일</td><td>하단 5개 메뉴와 과업카드</td><td>검색·필터 바텀시트 중심</td><td>피드형 카드와 참여행동 중심</td></tr>
+            <tr><td>구현 부담</td><td>중 · 기존 토큰과 컴포넌트 재사용 용이</td><td>중상 · 테이블·필터 상태가 많음</td><td>중 · 카드·상태·권한 화면 중심</td></tr>
+            <tr><td>추천도</td><td><span class="chip success">1순위</span></td><td><span class="chip">2순위</span></td><td><span class="chip">3순위</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="board-section" id="tokens">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">DESIGN TOKENS</p><h2>A안 기준 토큰</h2><p class="muted">현행 토큰을 유지하면서 의미 역할과 상태를 보완했습니다.</p></div></div>
+        <div class="token-grid">
+          <section class="panel token-panel" id="token-colors">
+            <div class="panel-title"><h2>색상</h2><span class="caption">기본 5색</span></div>
+            <div class="swatches">
+              <div class="swatch"><div class="swatch-color" style="background:#1E3A26"></div><div class="swatch-label"><strong>Brand 900</strong><br>#1E3A26</div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#295137"></div><div class="swatch-label"><strong>Brand 700</strong><br>#295137</div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#03C75A"></div><div class="swatch-label"><strong>Action</strong><br>#03C75A</div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#F5F6F1"></div><div class="swatch-label"><strong>Canvas</strong><br>#F5F6F1</div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#C75A03"></div><div class="swatch-label"><strong>Warning</strong><br>#C75A03</div></div>
+            </div>
+          </section>
+          <section class="panel token-panel" id="token-type">
+            <div class="panel-title"><h2>타이포그래피</h2><span class="caption">Pretendard·시스템 글꼴</span></div>
+            <div class="type-sample"><strong style="font-size:32px;letter-spacing:-.05em">제품화에 필요한 정보</strong><span>Display · 32/40 · 800</span></div>
+            <div class="type-sample"><strong style="font-size:22px">제조업체 검색결과</strong><span>Heading · 22/30 · 750</span></div>
+            <div class="type-sample"><strong style="font-size:16px">조건과 근거를 함께 확인하세요.</strong><span>Body · 16/26 · 500</span></div>
+            <div class="type-sample"><strong style="font-size:13px">공공데이터 · 기준일 표시</strong><span>Meta · 13/20 · 650</span></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-section" id="components">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">COMPONENTS</p><h2>공통 컴포넌트</h2></div></div>
+        <div class="component-grid">
+          <section class="component-box"><h3>버튼</h3><div class="component-row"><button class="btn btn-primary btn-small">주요 행동</button><button class="btn btn-accent btn-small">검색</button><button class="btn btn-outline btn-small">보조 행동</button></div></section>
+          <section class="component-box"><h3>상태·조건 칩</h3><div class="component-row"><span class="chip active">선택됨</span><span class="chip success">조건 일치</span><span class="chip warning">확인 필요</span><span class="chip locked">비공개</span></div></section>
+          <section class="component-box"><h3>입력</h3><input class="input" placeholder="검색어를 입력하세요"><div style="height:7px"></div><span class="caption">포커스·오류·비활성 상태 별도 정의</span></section>
+          <section class="component-box"><h3>출처 안내</h3><div class="notice">공공데이터 · 기준일 2026.08.07<br>계약 전 해당 업체에 직접 확인</div></section>
+          <section class="component-box"><h3>비밀문의</h3><div class="component-row"><span class="chip locked">본인·운영자만 조회</span><button class="btn btn-outline btn-small">메일초안</button></div></section>
+          <section class="component-box"><h3>후보 근거</h3><div class="grounding">일치 4건 · 미충족 1건<br>근거와 주의사항을 함께 표시</div></section>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-section" id="states">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">STATES</p><h2>필수 화면 상태</h2></div></div>
+        <div class="state-grid">
+          <article class="state-card"><div class="state-icon">…</div><strong>로딩</strong><div class="skeleton"><span></span><span></span><span></span></div></article>
+          <article class="state-card"><div class="state-icon">○</div><strong>빈 결과</strong><p>검색조건을 조정하거나 전체 조건으로 돌아갈 수 있게 합니다.</p></article>
+          <article class="state-card"><div class="state-icon" style="background:var(--danger-bg);color:var(--danger)">!</div><strong>오류</strong><p>재시도와 문의 경로를 제공하고 허위 성공 화면을 만들지 않습니다.</p></article>
+          <article class="state-card"><div class="state-icon" style="background:#f1f2f0;color:#66706b">⌁</div><strong>권한없음</strong><p>내용을 숨기고 로그인 또는 올바른 계정 전환을 안내합니다.</p></article>
+          <article class="state-card"><div class="state-icon" style="background:var(--warning-bg);color:var(--warning)">↻</div><strong>외부서비스 장애</strong><p>직접입력·규칙검사 등 승인된 대체경로를 제공합니다.</p></article>
+          <article class="state-card"><div class="state-icon">✓</div><strong>저장 완료</strong><p>저장 위치와 다음 행동을 함께 안내합니다.</p></article>
+          <article class="state-card"><div class="state-icon">i</div><strong>데이터 갱신중</strong><p>최근 확인일과 다음 갱신 상태를 구분합니다.</p></article>
+          <article class="state-card"><div class="state-icon" style="background:var(--warning-bg);color:var(--warning)">?</div><strong>근거 부족</strong><p>점수만 노출하지 않고 판단 보류와 추가확인을 표시합니다.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-section" id="screens">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">SCREEN PROTOTYPES</p><h2>상세 화면 열기</h2><p class="muted">각 파일은 외부 서비스 없이 로컬 브라우저에서 바로 확인할 수 있습니다.</p></div></div>
+        <div class="board-screen-links"><a href="option-a.html">A안 홈</a><a href="option-b.html">B안 홈</a><a href="option-c.html">C안 홈</a><a href="search.html">검색 목록</a><a href="project.html">제품화 프로젝트</a><a href="label-check.html">표기 사전점검</a></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -9,10 +9,10 @@ workflow:
         markers:
             complete: <moai>COMPLETE</moai>
             done: <moai>DONE</moai>
-    execution_mode: team
+    execution_mode: personal
     loop_prevention:
         failure_pattern_detection: true
-        max_iterations: 100
+        max_iterations: 20
         max_retries_per_operation: 3
     team:
         auto_selection:
@@ -21,8 +21,8 @@ workflow:
             min_files_for_team: 10
         default_model: sonnet
         delegate_mode: true
-        enabled: true
-        max_teammates: 10
+        enabled: false
+        max_teammates: 3
         role_profiles:
             researcher:
                 mode: plan
@@ -108,9 +108,9 @@ workflow:
         require_plan_approval: true
     # SPEC-WORKTREE-002: Worktree automation settings
     worktree:
-        auto_create: true
-        auto_merge: true
-        auto_cleanup: true
+        auto_create: false
+        auto_merge: false
+        auto_cleanup: false
         tmux_preferred: true
         session_name_pattern: "moai-{ProjectName}-{SPEC-ID}"
         # Sparse checkout paths for large monorepos (Claude Code v2.1.76+)
@@ -120,6 +120,6 @@ workflow:
         #     - "tests/"
         #     - "config/"
     token_budget:
-        plan: 30000
-        run: 180000
-        sync: 40000
+        plan: 16000
+        run: 80000
+        sync: 16000

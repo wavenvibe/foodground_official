@@ -3,10 +3,10 @@
 
 project:
   # Project name (derived from directory name or user input)
-  name: "foodground"
+  name: "foodground_official"
 
   # Project description (optional, user-provided)
-  description: ""
+  description: "Foodground B2B food-manufacturing discovery and productization service, rebuilt in an isolated official repository with Supabase."
 
   # Project mode: personal, team, or enterprise
   # - personal: Single developer, lightweight workflows
@@ -21,7 +21,7 @@ project:
   initialized: true
 
   # Optimization status (true if project structure has been optimized)
-  optimized: false
+  optimized: true
 
   # Template version used to create/update this project
   template_version: "2.14.0"

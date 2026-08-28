@@ -55,6 +55,7 @@ export default function SavedPage() {
   const [products, setProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFacilities(loadFacilities());
     setProducts(loadProducts());
     setMounted(true);

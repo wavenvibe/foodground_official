@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>푸드그라운드 디자인 시안 B — 데이터 탐색형</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-b-page">
+  <div class="prototype-note">G3-02 화면 시안 B · 예시 데이터</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#"><span class="brand-mark"></span>푸드그라운드</a>
+      <nav class="desktop-nav">
+        <a class="nav-link active" href="#">데이터 찾기</a><a class="nav-link" href="#">프로젝트</a><a class="nav-link" href="#">공동구매</a><a class="nav-link" href="#">내 활동</a>
+      </nav>
+      <div class="header-actions"><button class="icon-button mobile-menu-button">☰</button><button class="login-button">로그인</button></div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-dot"></span>데이터 탐색에 집중한 화면</div>
+          <h1>식품 제조 데이터를<br>빠르게 탐색하세요</h1>
+          <p class="lead">여러 데이터 유형을 같은 검색 규칙으로 조회하고, 필요한 대상을 바로 저장하거나 프로젝트에 연결합니다.</p>
+          <div class="hero-actions"><a class="btn btn-primary" href="#">전체 데이터 열기</a><a class="btn btn-outline" href="#">사용법 보기</a></div>
+        </div>
+        <div class="data-workbench">
+          <div class="workbench-head"><span class="chip active">통합검색</span><span class="chip">필터 2</span><span class="chip">최근 조회</span></div>
+          <div class="workbench-body">
+            <aside class="workbench-side">
+              <div class="workbench-link active">전체</div><div class="workbench-link">제조업체</div><div class="workbench-link">제품</div><div class="workbench-link">레시피</div><div class="workbench-link">식재료</div>
+            </aside>
+            <div class="workbench-main">
+              <input class="input" value="곡물 간식" aria-label="검색 예시">
+              <div class="mini-stat-row"><div class="mini-metric"><strong>1,284</strong><span>검색결과</span></div><div class="mini-metric"><strong>126</strong><span>제조업체</span></div><div class="mini-metric"><strong>34</strong><span>레시피</span></div></div>
+              <div class="data-row header"><span>이름</span><span>분류·지역</span><span>상태</span></div>
+              <div class="data-row"><strong>현미 곡물바</strong><span>과자류 · 경기</span><span class="chip success">확인</span></div>
+              <div class="data-row"><strong>오트 크런치</strong><span>곡류가공품 · 충북</span><span class="chip">상세</span></div>
+              <div class="data-row"><strong>귀리 베이스</strong><span>레시피 · 원료</span><span class="chip">비교</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container">
+        <div class="section-title-row"><div><p class="section-kicker">빠른 탐색</p><h2>데이터 유형별 바로가기</h2></div><p class="caption">밀도 높은 정보 탐색을 선호하는 실무자용</p></div>
+        <div class="workflow-grid">
+          <article class="workflow-card"><span class="workflow-number">FACILITY</span><h3>제조업체</h3><p>지역·업종·인증·영업상태로 조건검색합니다.</p><a class="text-link">94,723건 →</a></article>
+          <article class="workflow-card"><span class="workflow-number">PRODUCT</span><h3>제품</h3><p>제품명·분류·제조사 기준으로 전건을 검색합니다.</p><a class="text-link">1,047,894건 →</a></article>
+          <article class="workflow-card"><span class="workflow-number">RECIPE</span><h3>레시피</h3><p>분류와 재료관계를 확인하고 대체후보로 연결합니다.</p><a class="text-link">70,165건 →</a></article>
+          <article class="workflow-card"><span class="workflow-number">INGREDIENT</span><h3>식재료</h3><p>표준명과 동의어로 관련 데이터를 찾습니다.</p><a class="text-link">18,933건 →</a></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-grid"><span class="brand"><span class="brand-mark"></span>푸드그라운드</span><p>식품 제조 데이터 탐색 도구</p><p>공공데이터 기반 · 출처·기준일 표시</p></div></footer>
+  <nav class="mobile-bottom-nav"><a class="active"><span class="nav-icon">⌕</span><span>데이터</span></a><a><span class="nav-icon">▣</span><span>저장</span></a><a><span class="nav-icon">□</span><span>프로젝트</span></a><a><span class="nav-icon">◫</span><span>공동구매</span></a><a><span class="nav-icon">○</span><span>내 활동</span></a></nav>
+</body>
+</html>

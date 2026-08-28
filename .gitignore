@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -63,4 +64,13 @@ venv/
 # logs
 *.log
 /logs/
+
+# 커밋 제외 — 세션·임시 산출물
+/output/
+START_*.md
+.claude/hooks/moai/handle-stop-goal.sh
+.claude/hooks/moai/sync-phase-quality-gate.sh
+
+# Supabase CLI 임시 파일
+/supabase/.temp/
 
