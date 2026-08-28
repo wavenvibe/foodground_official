@@ -16,9 +16,9 @@ Gate: G4 구현
 | VS-1 | 읽기 전용 감사 (분석 폴더·요구사항 추출·충돌목록) | ✅ 완료 |
 | VS-2 | 로컬 migration·데이터 적재 준비 | ✅ 완료 |
 | VS-3 | 공개탐색 로컬 구현·검증 (시설·레시피·식재료 목록·상세) | ✅ 완료 |
-| VS-4 | 대체 식재료 검색·후보순위 | ⏸ 미착수 |
-| VS-5 | 시설 상세·ContactButton | ⏸ 미착수 |
-| VS-6 | QA·배포·인계 | ⏸ 미착수 |
+| VS-4 | 대체 식재료 검색·후보순위 | ✅ 완료 2026-08-28 |
+| VS-5 | 시설 상세·ContactButton | ✅ 완료 2026-08-28 |
+| VS-6 | QA·배포·인계 | ✅ 기술 배포 완료 2026-08-28 / 사용자 UAT 미승인 |
 
 ## 4. 원격 승인점 상태
 
@@ -26,15 +26,15 @@ Gate: G4 구현
 |---|---|---|
 | A | Supabase 원격 로그인 + migration 적용 | ✅ 완료 2026-08-26 |
 | B | Supabase 원격 staging 데이터 적재 | ✅ 완료 2026-08-27 |
-| C | Supabase RLS·공개 읽기 검증 | ⏸ 미승인 |
+| C | Supabase RLS·공개 읽기 검증 | ✅ 완료 2026-08-28 |
 
 ## 5. 외부 환경 승인 상태
 
 | 항목 | 상태 |
 |---|---|
-| Vercel 배포 | ⏸ 미승인 |
-| commit·push | ⏸ 미승인 |
-| 원격 Supabase migration 실행 | ⏸ 미승인 (승인점 A 완료 후) |
+| Vercel 배포 | ✅ 완료 2026-08-28 (dpl_5G666iP5aBn53B46cUJemn6r1B2a) |
+| commit·push | ✅ 완료 2026-08-28 (PR #1, SHA: 68963ef) |
+| 원격 Supabase migration 실행 | ✅ 완료 (승인점 A 2026-08-26) |
 
 ## 6. 고정 제약
 
@@ -95,6 +95,24 @@ Gate: G4 구현
 
 각 적재 스크립트가 `private.data_lineage`에 UUID를 기록함. 실행 시점의 터미널 출력에서 확인 가능. 추후 `SELECT * FROM private.data_lineage ORDER BY created_at;`으로 재조회 가능.
 
-## 10. 현재 즉시 작업
+## 10. VS-6 운영배포 완료 (2026-08-28~29)
 
-승인점 C: staging→public 게시 및 RLS·공개 읽기 검증 (사용자 승인 후 실행)
+| 항목 | 결과 |
+|---|---|
+| PR #1 merge (codex/g1-baseline → main) | ✅ 완료 (SHA: 68963ef82798aa3219ddf8e2344f0a4eab73c63f) |
+| Vercel 운영 배포 (foodground-official.vercel.app) | ✅ 완료 (READY, dpl_5G666iP5aBn53B46cUJemn6r1B2a) |
+| 운영 스모크 QA (Playwright E2E 19/19) | ✅ 완료 2026-08-29 |
+| ESLint 0 errors | ✅ |
+| TypeScript 0 errors | ✅ |
+| Next.js build | ✅ Compiled successfully |
+| 사용자 UAT | ⏸ 미승인 |
+| G6-GATE 최종 인수 | ⏸ 미완료 |
+| 종합 판정 | 기술 배포 완료 / 사용자 품질 재검토 및 안정화 필요 |
+
+증빙 문서:
+- `docs/qa/vs6-production-deployment.md`
+- `docs/qa/vs6-release-readiness.md`
+- `docs/qa/vs6-integration-evidence.md`
+- `02_문서/06_운영인계/TEC-12_릴리스노트_v0.1.md`
+
+다음 작업: CHG-G6 (후속 품질 개선·기능 추가)
