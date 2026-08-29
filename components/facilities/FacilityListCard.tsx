@@ -4,12 +4,25 @@ import type { FacilityListItem } from "@/lib/facilities";
 export default function FacilityListCard({
   facility,
   backUrl,
+  ingredient,
+  substitute,
+  recipe,
 }: {
   facility: FacilityListItem;
   backUrl?: string;
+  ingredient?: string;
+  substitute?: string;
+  recipe?: string;
 }) {
   const region = [facility.region_sido, facility.region_sigungu].filter(Boolean).join(" ");
-  const detailHref = `/facilities/${encodeURIComponent(facility.mgt_no)}${backUrl ? `?back=${encodeURIComponent(backUrl)}` : ""}`;
+
+  const params = new URLSearchParams();
+  if (backUrl) params.set("back", backUrl);
+  if (ingredient) params.set("ingredient", ingredient);
+  if (substitute) params.set("substitute", substitute);
+  if (recipe) params.set("recipe", recipe);
+  const qs = params.toString();
+  const detailHref = `/facilities/${encodeURIComponent(facility.mgt_no)}${qs ? `?${qs}` : ""}`;
 
   return (
     <article className="facility-card">

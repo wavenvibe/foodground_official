@@ -932,6 +932,142 @@ select:focus-visible {
   background: var(--paper);
 }
 
+/* ── Inquiry context aside ── */
+
+.inquiry-context {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.inquiry-context__title {
+  margin: 0 0 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.inquiry-context__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.inquiry-context__list dt {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.inquiry-context__list dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inquiry-context__notice {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+/* ── Facility context note (substitute flow) ── */
+
+.facility-context-note {
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  background: var(--canvas);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--point);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+.facility-context-note p { margin: 0; }
+.facility-context-note p + p { margin-top: 6px; }
+.facility-context-note strong { color: var(--ink); }
+.facility-context-note__disclaimer {
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+.facility-context-note--detail {
+  margin-bottom: 16px;
+}
+
+/* ── Inquiry contact + context-lost ── */
+
+.inquiry-facility-contact {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.inquiry-facility-contact__title {
+  margin: 0 0 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.inquiry-facility-contact__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0;
+}
+.inquiry-facility-contact__list dt {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+.inquiry-facility-contact__list dd {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+.inquiry-facility-contact__note {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+.text-muted {
+  color: var(--ink-2);
+}
+.inquiry-context-lost {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--canvas);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-2);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: var(--ink);
+}
+.inquiry-context-lost p { margin: 0; }
+.inquiry-context-lost p + p { margin-top: 6px; }
+.inquiry-context-lost__sub { color: var(--ink-2); }
+.link { color: var(--point); text-decoration: underline; }
+
+/* ── Candidate card action ── */
+
+.candidate-card__action {
+  padding: 12px 16px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.candidate-card__action-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
 .substitute-results__facility-link p {
   margin: 0;
   font-size: 0.875rem;

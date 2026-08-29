@@ -28,11 +28,23 @@ interface FacilityFiltersProps {
   businessType: string;
   haccp: boolean;
   status: string;
+  ingredient?: string;
+  substitute?: string;
+  recipe?: string;
 }
 
 export default function FacilityFilters(props: FacilityFiltersProps) {
+  const contextQuery = new URLSearchParams();
+  if (props.ingredient) contextQuery.set("ingredient", props.ingredient);
+  if (props.substitute) contextQuery.set("substitute", props.substitute);
+  if (props.recipe) contextQuery.set("recipe", props.recipe);
+  const resetHref = `/facilities${contextQuery.toString() ? `?${contextQuery.toString()}` : ""}`;
+
   return (
     <form className="facility-filters" method="get" action="/facilities" role="search">
+      {props.ingredient && <input type="hidden" name="ingredient" value={props.ingredient} />}
+      {props.substitute && <input type="hidden" name="substitute" value={props.substitute} />}
+      {props.recipe && <input type="hidden" name="recipe" value={props.recipe} />}
       <div className="facility-filters__search">
         <label htmlFor="facility-q">제조시설 검색</label>
         <div>
@@ -90,7 +102,7 @@ export default function FacilityFilters(props: FacilityFiltersProps) {
         </label>
       </div>
       <div className="facility-filters__actions">
-        <Link className="button button--secondary" href="/facilities">
+        <Link className="button button--secondary" href={resetHref}>
           조건 초기화
         </Link>
         <button className="button button--slate" type="submit">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { SubstituteCandidate, StandardFood } from "@/lib/substitutes";
 import SimilarityBar from "./SimilarityBar";
 import NutritionTable from "./NutritionTable";
@@ -14,11 +15,15 @@ const SIM_LABELS: Record<string, string> = {
 interface SubstituteCandidateListProps {
   candidates: SubstituteCandidate[];
   sourceFood: StandardFood | null;
+  ingredient: string;
+  recipe: string;
 }
 
 export default function SubstituteCandidateList({
   candidates,
   sourceFood,
+  ingredient,
+  recipe,
 }: SubstituteCandidateListProps) {
   if (!sourceFood || candidates.length === 0) return null;
   return (
@@ -26,6 +31,12 @@ export default function SubstituteCandidateList({
       {candidates.map((c, idx) => {
         const food = c.candidate_food;
         const finalScore = c.score_final != null ? Math.round(c.score_final * 100) : null;
+
+        const facilityParams = new URLSearchParams();
+        if (ingredient) facilityParams.set("ingredient", ingredient);
+        facilityParams.set("substitute", food.name);
+        if (recipe) facilityParams.set("recipe", recipe);
+        const facilityHref = `/facilities?${facilityParams.toString()}`;
 
         return (
           <li key={food.standard_food_id} className="candidate-card">
@@ -79,6 +90,15 @@ export default function SubstituteCandidateList({
                 분석 기준일: {c.basis_date.slice(0, 10)}
               </p>
             )}
+
+            <div className="candidate-card__action">
+              <Link href={facilityHref} className="button button--secondary">
+                이 후보로 제조시설 찾기
+              </Link>
+              <p className="candidate-card__action-note">
+                제품·공정 적합 여부는 시설에 직접 확인해 주세요.
+              </p>
+            </div>
           </li>
         );
       })}

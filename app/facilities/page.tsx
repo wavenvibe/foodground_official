@@ -17,6 +17,9 @@ interface FacilitiesPageProps {
     haccp?: string;
     status?: string;
     page?: string;
+    ingredient?: string;
+    substitute?: string;
+    recipe?: string;
   }>;
 }
 
@@ -36,6 +39,9 @@ export default async function FacilitiesPage({ searchParams }: FacilitiesPagePro
   const haccp = params.haccp === "1";
   const status = params.status ?? "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const ingredient = params.ingredient ?? "";
+  const substitute = params.substitute ?? "";
+  const recipe = params.recipe ?? "";
 
   const outcome = await searchPublicFacilities({
     q,
@@ -46,12 +52,19 @@ export default async function FacilitiesPage({ searchParams }: FacilitiesPagePro
     page,
   });
 
-  const currentQuery = new URLSearchParams();
-  if (q) currentQuery.set("q", q);
-  if (sido) currentQuery.set("sido", sido);
-  if (businessType) currentQuery.set("businessType", businessType);
-  if (haccp) currentQuery.set("haccp", "1");
-  if (status) currentQuery.set("status", status);
+  // filter-only query (for search criteria display)
+  const filterQuery = new URLSearchParams();
+  if (q) filterQuery.set("q", q);
+  if (sido) filterQuery.set("sido", sido);
+  if (businessType) filterQuery.set("businessType", businessType);
+  if (haccp) filterQuery.set("haccp", "1");
+  if (status) filterQuery.set("status", status);
+
+  // full query including context params (for pagination links and backUrl)
+  const currentQuery = new URLSearchParams(filterQuery);
+  if (ingredient) currentQuery.set("ingredient", ingredient);
+  if (substitute) currentQuery.set("substitute", substitute);
+  if (recipe) currentQuery.set("recipe", recipe);
 
   const backUrl = `/facilities${currentQuery.toString() ? `?${currentQuery.toString()}` : ""}`;
 
@@ -65,7 +78,21 @@ export default async function FacilitiesPage({ searchParams }: FacilitiesPagePro
           <p>지역·업종·인증 조건을 조합해 제조시설을 찾고 공개정보를 확인하세요.</p>
         </header>
 
-        <FacilityFilters q={q} sido={sido} businessType={businessType} haccp={haccp} status={status} />
+        <FacilityFilters q={q} sido={sido} businessType={businessType} haccp={haccp} status={status}
+          ingredient={ingredient} substitute={substitute} recipe={recipe} />
+
+        {(ingredient || substitute) && (
+          <aside className="facility-context-note" aria-label="대체 식재료 선택 맥락">
+            <p>
+              {substitute && ingredient
+                ? <>대체 후보 <strong>{substitute}</strong> (원 식재료: {ingredient})로 제조 가능 여부를 문의할 시설을 확인하고 있습니다.</>
+                : <>식재료 <strong>{ingredient}</strong> 관련 시설을 확인하고 있습니다.</>}
+            </p>
+            <p className="facility-context-note__disclaimer">
+              지역·업종·HACCP 인증은 시설 수준 공개 정보입니다. 제품·공정 적합 여부는 해당 시설에 직접 문의해 확인하세요.
+            </p>
+          </aside>
+        )}
 
         <section className="facility-results" aria-labelledby="facility-results-title">
           <div className="facility-results__head">
@@ -99,7 +126,8 @@ export default async function FacilitiesPage({ searchParams }: FacilitiesPagePro
             <>
               <div className="facility-list">
                 {outcome.data.map((facility) => (
-                  <FacilityListCard key={facility.mgt_no} facility={facility} backUrl={backUrl} />
+                  <FacilityListCard key={facility.mgt_no} facility={facility} backUrl={backUrl}
+                    ingredient={ingredient} substitute={substitute} recipe={recipe} />
                 ))}
               </div>
               <nav className="pagination" aria-label="제조시설 검색 페이지">

@@ -11,8 +11,12 @@ export const revalidate = 0;
 
 function safeBackUrl(back: string | undefined): string {
   if (!back) return "/facilities";
-  const decoded = decodeURIComponent(back);
-  if (/^\/facilities(\?[^<>"]*)?$/.test(decoded)) return decoded;
+  try {
+    const decoded = decodeURIComponent(back);
+    if (/^\/facilities(\?[^<>"]*)?$/.test(decoded)) return decoded;
+  } catch {
+    // malformed percent-encoding — fall through to default
+  }
   return "/facilities";
 }
 
@@ -80,11 +84,14 @@ export default async function FacilityDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ back?: string }>;
+  searchParams: Promise<{ back?: string; ingredient?: string; substitute?: string; recipe?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
   const backUrl = safeBackUrl(sp.back);
+  const ingredient = sp.ingredient ?? "";
+  const substitute = sp.substitute ?? "";
+  const recipe = sp.recipe ?? "";
 
   const outcome = await getPublicFacility(id);
 
@@ -92,6 +99,15 @@ export default async function FacilityDetailPage({
 
   const filterConditions =
     outcome.ok && outcome.data ? buildFilterConditions(backUrl, outcome.data) : [];
+
+  const inquiryParams = new URLSearchParams();
+  inquiryParams.set("facility", id);
+  if (outcome.ok && outcome.data) inquiryParams.set("facilityName", outcome.data.name);
+  inquiryParams.set("back", `/facilities/${encodeURIComponent(id)}`);
+  if (ingredient) inquiryParams.set("ingredient", ingredient);
+  if (substitute) inquiryParams.set("substitute", substitute);
+  if (recipe) inquiryParams.set("recipe", recipe);
+  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   return (
     <div className="app-shell">
@@ -113,6 +129,22 @@ export default async function FacilityDetailPage({
                 ← 검색 결과로 돌아가기
               </Link>
             </nav>
+
+            {(ingredient || substitute || recipe) && (
+              <aside className="facility-context-note facility-context-note--detail" aria-label="선택 맥락 참고정보">
+                <p>
+                  {substitute && ingredient
+                    ? <>대체 후보 <strong>{substitute}</strong> (원 식재료: {ingredient}) 제조 가능 여부를 문의하기 위한 참고 시설입니다.</>
+                    : ingredient
+                    ? <>식재료 <strong>{ingredient}</strong> 관련 문의를 위한 참고 시설입니다.</>
+                    : null}
+                  {recipe && <>{" "}참고 레시피 #{recipe}.</>}
+                </p>
+                <p className="facility-context-note__disclaimer">
+                  이 정보는 문의 맥락으로 전달된 참고 정보입니다. 시설 HACCP 인증은 시설 수준이며 제품·공정 적합 여부는 직접 문의하세요.
+                </p>
+              </aside>
+            )}
 
             {filterConditions.length > 0 && (
               <aside className="facility-detail__filter-context" aria-label="검색 조건 충족 여부">
@@ -186,6 +218,20 @@ export default async function FacilityDetailPage({
                 facilityName={outcome.data.name}
                 isHaccp={outcome.data.is_haccp}
               />
+
+              {/* 문의 준비 링크 — URL 맥락 보존 */}
+              <div style={{ marginTop: "1.5rem" }}>
+                <Link
+                  href={inquiryHref}
+                  className="button button--point"
+                  style={{ display: "inline-block" }}
+                >
+                  문의 준비하기
+                </Link>
+                <p style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "var(--ink-2)" }}>
+                  공개 전화·홈페이지로 직접 연락하는 문안을 작성합니다. 자동 발송하지 않습니다.
+                </p>
+              </div>
             </article>
           </>
         ) : null}

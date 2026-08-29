@@ -12,12 +12,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface SubstitutesPageProps {
-  searchParams: Promise<{ ingredient?: string }>;
+  searchParams: Promise<{ ingredient?: string; recipe?: string }>;
 }
 
 export default async function SubstitutesPage({ searchParams }: SubstitutesPageProps) {
   const params = await searchParams;
   const ingredientQuery = (params.ingredient ?? "").trim();
+  const recipe = (params.recipe ?? "").trim();
 
   const outcome = ingredientQuery ? await searchSubstitutes(ingredientQuery) : null;
 
@@ -45,6 +46,7 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
               식재료 이름
             </label>
             <div className="substitute-search-form__field">
+              {recipe && <input type="hidden" name="recipe" value={recipe} />}
               <input
                 id="substitute-input"
                 type="search"
@@ -160,6 +162,8 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
             <SubstituteCandidateList
               candidates={outcome.data.candidates}
               sourceFood={outcome.data.source_food}
+              ingredient={ingredientQuery}
+              recipe={recipe}
             />
 
             {outcome.data.basis_date && (
@@ -168,10 +172,13 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
               </p>
             )}
             <div className="substitute-results__facility-link">
-              <Link href="/facilities" className="button button--secondary">
-                제조시설 찾기
+              <Link
+                href={`/facilities?ingredient=${encodeURIComponent(ingredientQuery)}${recipe ? `&recipe=${encodeURIComponent(recipe)}` : ""}`}
+                className="button button--secondary"
+              >
+                전체 제조시설 찾기
               </Link>
-              <p>대체 식재료를 제조할 시설을 검색할 수 있습니다.</p>
+              <p>후보를 선택하지 않고 원 식재료 기준으로 제조시설을 검색합니다.</p>
             </div>
           </section>
         )}

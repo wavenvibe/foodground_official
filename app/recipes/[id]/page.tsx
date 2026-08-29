@@ -52,7 +52,7 @@ export default async function RecipeDetailPage({
                     .filter((ing) => !ing.is_seasoning)
                     .map((ing) => (
                       <div key={ing.ingredient_id} className="recipe-ingredient-row">
-                        <Link href={`/ingredients/${ing.ingredient_id}`} className="recipe-ingredient-row__name">
+                        <Link href={`/ingredients/${ing.ingredient_id}?recipe=${id}`} className="recipe-ingredient-row__name">
                           {ing.ingredient_name}
                         </Link>
                         <span className="recipe-ingredient-row__amount">
@@ -70,7 +70,7 @@ export default async function RecipeDetailPage({
                         .filter((ing) => ing.is_seasoning)
                         .map((ing) => (
                           <div key={ing.ingredient_id} className="recipe-ingredient-row">
-                            <Link href={`/ingredients/${ing.ingredient_id}`} className="recipe-ingredient-row__name">
+                            <Link href={`/ingredients/${ing.ingredient_id}?recipe=${id}`} className="recipe-ingredient-row__name">
                               {ing.ingredient_name}
                             </Link>
                             <span className="recipe-ingredient-row__amount">

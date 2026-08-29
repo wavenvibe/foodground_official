@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Foodground UI-GATE-2 — 상태·배지 보드</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      /* ── 보드 전용 레이아웃 ── */
+      .board-hero {
+        background: var(--slate);
+        color: white;
+        padding: 36px 0 28px;
+      }
+      .board-hero h1 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 36px); letter-spacing: -.04em; }
+      .board-hero p { margin: 0; color: #d7dbe4; font-size: 15px; }
+      .board-hero .meta { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #9aa4b8; }
+      .board-hero .meta strong { color: white; }
+
+      .board-section { margin-top: 48px; }
+      .board-section-head { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--rule); }
+      .board-section-head h2 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
+      .board-section-head .code { font-family: monospace; font-size: 13px; font-weight: 700; color: var(--green-dark); background: var(--green-soft); padding: 3px 8px; border-radius: 6px; }
+      .board-section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+
+      .state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 20px; }
+      .state-panel { border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+      .state-panel-head { padding: 14px 18px; background: #f5f6f7; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 10px; }
+      .state-panel-head .state-code { font-family: monospace; font-size: 11px; font-weight: 900; color: var(--muted); letter-spacing: .08em; }
+      .state-panel-head .state-label { font-size: 13px; font-weight: 700; }
+      .state-panel-body { padding: 22px; }
+
+      /* ── 스켈레톤 (ST-01) ── */
+      .skeleton-line { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #e8e9eb 25%, #f0f1f2 50%, #e8e9eb 75%); background-size: 400% 100%; animation: shimmer 1.4s infinite; }
+      .skeleton-line + .skeleton-line { margin-top: 10px; }
+      .skeleton-line.wide { width: 100%; }
+      .skeleton-line.mid  { width: 72%; }
+      .skeleton-line.short{ width: 44%; }
+      .skeleton-card { border: 1px solid var(--rule); border-radius: 14px; padding: 18px; margin-bottom: 12px; }
+      @keyframes shimmer { to { background-position: -400% 0; } }
+      .skeleton-tag { display: inline-block; width: 64px; height: 22px; border-radius: 999px; background: #e8e9eb; animation: shimmer 1.4s infinite; }
+      .skeleton-h { height: 22px; border-radius: 6px; background: linear-gradient(90deg, #e8e9eb 25%, #f0f1f2 50%, #e8e9eb 75%); background-size: 400% 100%; animation: shimmer 1.4s infinite; margin: 10px 0 6px; width: 60%; }
+
+      /* ── 빈 결과 (ST-02) ── */
+      .empty-box { text-align: center; padding: 40px 24px; }
+      .empty-box .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: .35; }
+      .empty-box h3 { margin: 0 0 8px; font-size: 18px; }
+      .empty-box p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .empty-query { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 8px; font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+
+      /* ── 오류 (ST-03) ── */
+      .error-box { padding: 22px; border: 1px solid #f3c6c6; border-radius: 14px; background: #fff5f5; }
+      .error-box .error-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800; color: #8b1a1a; margin-bottom: 10px; }
+      .error-box .error-title::before { content: "!"; width: 22px; height: 22px; border-radius: 50%; background: #cc2a2a; color: white; font-size: 13px; font-weight: 900; display: grid; place-items: center; flex-shrink: 0; }
+      .error-box p { margin: 0 0 14px; color: #5c2c2c; font-size: 13px; line-height: 1.6; }
+      .error-box .trace { font-family: monospace; font-size: 11px; color: #9e6060; }
+
+      /* ── 불가 (ST-04) ── */
+      .unavail-box { padding: 22px; border: 1px solid var(--rule); border-radius: 14px; background: var(--warn-soft); border-color: #ead1ae; }
+      .unavail-box .unavail-title { font-size: 15px; font-weight: 800; color: var(--warn); margin-bottom: 8px; }
+      .unavail-box p { margin: 0 0 14px; color: #5c3f10; font-size: 13px; line-height: 1.6; }
+
+      /* ── 404 (ST-05) ── */
+      .notfound-box { text-align: center; padding: 40px 24px; }
+      .notfound-box .nf-code { font-size: 48px; font-weight: 900; color: var(--rule); letter-spacing: -.06em; }
+      .notfound-box h3 { margin: 8px 0; font-size: 18px; }
+      .notfound-box p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+      /* ── 미연결 (ST-07) ── */
+      .unmatched-box { padding: 22px; border: 1px solid #e0e0e0; border-radius: 14px; background: #fafafa; }
+      .unmatched-box .unm-title { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+      .unmatched-box .unm-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #c8c8c8; border-radius: 999px; font-size: 11px; font-weight: 700; color: #666; background: #ececec; margin-bottom: 12px; }
+      .unmatched-box p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .unmatched-box .no-score { padding: 14px; border-radius: 10px; border: 1px dashed #ccc; background: white; font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 14px; }
+
+      /* ── 맥락 없음 (ST-08) ── */
+      .ctxlost-box { padding: 22px; }
+      .ctxlost-box h3 { margin: 0 0 8px; font-size: 16px; }
+      .ctxlost-box p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .ctxlost-search { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+      .ctxlost-search input { min-height: 44px; padding: 0 12px; border: 1px solid var(--rule); border-radius: 10px; font: inherit; }
+
+      /* ── 복사 피드백 (FB-01) ── */
+      .fb-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .fb-feedback { font-size: 13px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+      .fb-feedback::before { content: "✓"; width: 18px; height: 18px; border-radius: 50%; background: var(--green); color: white; font-size: 11px; display: grid; place-items: center; flex-shrink: 0; }
+      .fb-feedback-err { font-size: 13px; font-weight: 700; color: #8b1a1a; display: flex; align-items: center; gap: 6px; }
+      .fb-feedback-err::before { content: "!"; width: 18px; height: 18px; border-radius: 50%; background: #cc2a2a; color: white; font-size: 11px; display: grid; place-items: center; flex-shrink: 0; }
+
+      /* ── MatchTypeBadge ── */
+      .badge-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .match-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid; }
+      .match-badge.exact    { color: #006e2e; background: var(--green-soft); border-color: #b5e6c8; }
+      .match-badge.substring{ color: #3d4f9f; background: #eff1fc; border-color: #c2caf5; }
+      .match-badge.fuzzy    { color: #7d4808; background: var(--warn-soft); border-color: #edd0a7; }
+      .match-badge.synonym  { color: #5c3c80; background: #f5f0fb; border-color: #d4bff0; }
+      .match-badge.unmatched{ color: #5e6474; background: #f0f1f3; border-color: #cdd0d8; }
+      .match-badge-desc { font-size: 12px; color: var(--muted); }
+
+      .badge-detail { margin-top: 20px; display: grid; gap: 10px; }
+      .badge-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 10px; background: #fafafa; }
+      .badge-row .match-badge { flex-shrink: 0; }
+      .badge-row-info h4 { margin: 0 0 4px; font-size: 13px; }
+      .badge-row-info p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+      /* ── 반응형 ── */
+      @media (max-width: 760px) {
+        .state-grid { grid-template-columns: 1fr; }
+        .board-hero .meta { flex-direction: column; gap: 6px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── 보드 헤더 ── -->
+    <header class="site-header">
+      <a class="brand" href="?screen=home" aria-label="푸드그라운드 홈">
+        <span class="brand-mark">FG</span>
+        <span>FOODGROUND</span>
+      </a>
+      <nav class="desktop-nav" aria-label="주요 메뉴">
+        <a href="index.html?screen=recipes">레시피</a>
+        <a href="index.html?screen=ingredients">식재료</a>
+        <a href="index.html?screen=substitutes">대체 식재료</a>
+        <a href="index.html?screen=facilities">제조시설</a>
+      </nav>
+      <button class="mobile-menu" type="button" aria-label="메뉴 열기" aria-expanded="false">메뉴</button>
+    </header>
+    <div class="mobile-drawer" hidden>
+      <a href="index.html?screen=recipes">레시피</a>
+      <a href="index.html?screen=ingredients">식재료</a>
+      <a href="index.html?screen=substitutes">대체 식재료</a>
+      <a href="index.html?screen=facilities">제조시설</a>
+    </div>
+
+    <!-- ── 보드 소개 ── -->
+    <div class="board-hero">
+      <div class="container">
+        <h1>상태·배지 시안 보드 <span style="font-size:.6em;font-weight:400;color:#9aa4b8;">부록</span></h1>
+        <p>핵심 9개 화면(index.html)의 부록입니다. 상태 패턴과 MatchTypeBadge를 한눈에 비교합니다.</p>
+        <div class="meta">
+          <span><strong>포함 상태:</strong> ST-01 loading · ST-02 empty · ST-03 error · ST-04 unavailable · ST-05 not-found · ST-07 unmatched · ST-08 context-lost · FB-01 copied</span>
+          <span><strong>포함 배지:</strong> exact · substring · fuzzy · synonym · unmatched</span>
+          <span><strong>반응형 검증:</strong> 1440×1000 · 390×844</span>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <div class="container">
+
+        <!-- ══════════════════════════════════════════════
+             SECTION A — 공통 상태 패턴
+        ══════════════════════════════════════════════ -->
+        <div class="board-section">
+          <div class="board-section-head">
+            <span class="code">ST-01 ~ ST-08</span>
+            <div>
+              <h2>공통 상태 패턴</h2>
+              <p>모든 목록·상세·후보 화면에서 일관 적용되는 StatePanel 표현</p>
+            </div>
+          </div>
+
+          <div class="state-grid">
+
+            <!-- ST-01 loading -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-01</span>
+                <span class="state-label">loading — 데이터 로드 중</span>
+                <span class="pill" style="margin-left:auto">모든 목록·상세</span>
+              </div>
+              <div class="state-panel-body">
+                <p class="muted small" style="margin:0 0 16px">화면 골격을 유지하고 결과 영역만 스켈레톤으로 대체합니다.</p>
+                <!-- 스켈레톤 카드 1 -->
+                <div class="skeleton-card">
+                  <div style="display:flex;gap:8px;margin-bottom:10px">
+                    <span class="skeleton-tag"></span>
+                    <span class="skeleton-tag" style="width:50px"></span>
+                  </div>
+                  <div class="skeleton-h"></div>
+                  <div class="skeleton-line wide" style="margin-top:10px"></div>
+                  <div class="skeleton-line mid"></div>
+                  <div style="display:flex;gap:8px;margin-top:14px">
+                    <span class="skeleton-tag" style="width:80px;height:30px;border-radius:8px"></span>
+                    <span class="skeleton-tag" style="width:80px;height:30px;border-radius:8px"></span>
+                  </div>
+                </div>
+                <!-- 스켈레톤 카드 2 -->
+                <div class="skeleton-card">
+                  <div style="display:flex;gap:8px;margin-bottom:10px">
+                    <span class="skeleton-tag"></span>
+                  </div>
+                  <div class="skeleton-h"></div>
+                  <div class="skeleton-line wide" style="margin-top:10px"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ST-02 empty -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-02</span>
+                <span class="state-label">empty — 검색 결과 없음</span>
+                <span class="pill" style="margin-left:auto">목록·후보</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="empty-box">
+                  <div class="empty-icon">🔍</div>
+                  <div class="empty-query">
+                    검색어: <strong>고추장</strong> · 분류: 육류 · 영양정보 있음
+                  </div>
+                  <h3>일치하는 항목이 없습니다</h3>
+                  <p>검색 조건을 변경하거나 초기화한 뒤 다시 시도해 보세요.<br>
+                     빈 결과는 연결 오류와 다릅니다 — 데이터는 정상 조회되었습니다.</p>
+                  <button class="button secondary" style="margin-right:8px">조건 초기화</button>
+                  <button class="button primary">다시 검색</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ST-03 error -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-03</span>
+                <span class="state-label">error — API 연결 오류</span>
+                <span class="pill" style="margin-left:auto">API 연결 화면</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="error-box">
+                  <div class="error-title">조회 데이터를 불러오지 못했습니다</div>
+                  <p>일시적인 오류입니다. 잠시 후 다시 시도해 주세요.<br>
+                     문제가 계속되면 추적번호를 함께 전달해 주세요.</p>
+                  <p class="trace">추적번호: fg-8a3c-e4d1</p>
+                  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="button primary">다시 시도</button>
+                    <button class="button secondary">목록으로 돌아가기</button>
+                  </div>
+                </div>
+                <p class="muted small" style="margin:14px 0 0">SQL·테이블명·스택 트레이스는 공개 오류에 표시하지 않습니다.</p>
+              </div>
+            </div>
+
+            <!-- ST-04 unavailable -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-04</span>
+                <span class="state-label">unavailable — 데이터 미연결</span>
+                <span class="pill" style="margin-left:auto">분석·연락</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="unavail-box">
+                  <div class="unavail-title">현재 분석 결과를 제공할 수 없습니다</div>
+                  <p>이 식재료는 현재 대체 분석 데이터가 준비되어 있지 않습니다.<br>
+                     성공 결과로 표시하지 않고 상태를 명확히 안내합니다.</p>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="button secondary">식재료 목록으로</button>
+                    <button class="button text">다른 식재료 검색</button>
+                  </div>
+                </div>
+                <p class="muted small" style="margin:14px 0 0">빈 화면이나 무한 로딩 대신 명확한 안내와 대안 행동을 제공합니다.</p>
+              </div>
+            </div>
+
+            <!-- ST-05 not-found -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-05</span>
+                <span class="state-label">not-found — 잘못된 식별자</span>
+                <span class="pill" style="margin-left:auto">상세 화면</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="notfound-box">
+                  <div class="nf-code">404</div>
+                  <h3>이 항목을 찾을 수 없습니다</h3>
+                  <p>잘못된 주소이거나 이미 삭제된 항목입니다.<br>
+                     없는 데이터와 연결 오류는 서로 다른 상태입니다.</p>
+                  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                    <button class="button primary">목록으로 돌아가기</button>
+                    <button class="button secondary">홈으로</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ST-07 unmatched -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-07</span>
+                <span class="state-label">unmatched — 표준식품 미연결</span>
+                <span class="pill" style="margin-left:auto">대체 식재료</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="unmatched-box">
+                  <div class="unm-title">태양초 고추장</div>
+                  <span class="unm-badge">미연결 · UNMATCHED</span>
+                  <p>이 식재료는 표준식품 데이터와 연결되지 않았습니다.<br>
+                     유사도 분석과 대체 후보를 제공할 수 없습니다.</p>
+                  <div class="no-score">
+                    유사도 점수와 후보 목록을 표시할 수 없습니다<br>
+                    <span style="font-size:11px">표준식품 연결이 필요합니다</span>
+                  </div>
+                  <p class="muted small">직접 검색으로 연결된 식재료를 찾아 대체 검토를 시작하세요.</p>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <a class="button primary" href="index.html?screen=ingredients">식재료 직접 검색</a>
+                    <button class="button secondary">다른 식재료로 변경</button>
+                  </div>
+                </div>
+                <p class="muted small" style="margin:14px 0 0">ST-07에서는 유사도 영역과 후보 목록을 표시하지 않습니다.</p>
+              </div>
+            </div>
+
+            <!-- ST-08 context-lost -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">ST-08</span>
+                <span class="state-label">context-lost — 선택 맥락 없음</span>
+                <span class="pill" style="margin-left:auto">시설·문의</span>
+              </div>
+              <div class="state-panel-body">
+                <div class="ctxlost-box">
+                  <h3>이전 선택 정보가 없습니다</h3>
+                  <p>레시피나 대체 식재료를 먼저 선택하면 시설 검색 조건이 자동으로 연결됩니다.<br>
+                     직접 시설을 검색할 수도 있습니다.</p>
+                  <div class="ctxlost-search">
+                    <input type="search" placeholder="업체명 또는 지역으로 직접 검색" aria-label="시설 직접 검색" />
+                    <button class="button primary">검색</button>
+                  </div>
+                  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+                    <a class="button secondary" href="index.html?screen=recipes">레시피부터 시작하기</a>
+                    <a class="button text" href="index.html?screen=substitutes">대체 식재료 선택</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FB-01 copied -->
+            <div class="state-panel">
+              <div class="state-panel-head">
+                <span class="state-code">FB-01</span>
+                <span class="state-label">copied — 복사 피드백</span>
+                <span class="pill" style="margin-left:auto">문의·전화 복사</span>
+              </div>
+              <div class="state-panel-body">
+                <p class="muted small" style="margin:0 0 18px">버튼 인접 영역에 피드백을 표시하고 일정 시간 후 자동 해제합니다.</p>
+
+                <!-- 성공 상태 -->
+                <div style="margin-bottom:20px">
+                  <p class="small" style="margin:0 0 10px;font-weight:700">복사 성공</p>
+                  <div class="fb-row">
+                    <button class="button primary" disabled>문의문안 복사</button>
+                    <span class="fb-feedback" aria-live="polite">문의문안을 복사했습니다.</span>
+                  </div>
+                </div>
+
+                <!-- 실패 상태 -->
+                <div style="margin-bottom:20px">
+                  <p class="small" style="margin:0 0 10px;font-weight:700">복사 실패 (브라우저 권한 거부)</p>
+                  <div class="fb-row">
+                    <button class="button primary">문의문안 복사</button>
+                    <span class="fb-feedback-err" aria-live="polite">브라우저에서 복사 권한을 확인해 주세요.</span>
+                  </div>
+                </div>
+
+                <!-- 초기 상태 -->
+                <div>
+                  <p class="small" style="margin:0 0 10px;font-weight:700">초기 상태 (복사 전)</p>
+                  <div class="fb-row">
+                    <button class="button primary" id="demo-copy">문의문안 복사</button>
+                    <span id="demo-feedback" class="muted small" aria-live="polite" style="min-height:20px"></span>
+                  </div>
+                </div>
+
+                <p class="muted small" style="margin:14px 0 0">자동발송·서버 메일 없음. 복사 후 전화·홈페이지로 연락합니다.</p>
+              </div>
+            </div>
+
+          </div><!-- /state-grid -->
+        </div><!-- /board-section -->
+
+        <!-- ══════════════════════════════════════════════
+             SECTION B — MatchTypeBadge 5종
+        ══════════════════════════════════════════════ -->
+        <div class="board-section">
+          <div class="board-section-head">
+            <span class="code">MatchTypeBadge</span>
+            <div>
+              <h2>매칭 타입 배지 5종</h2>
+              <p>식재료·대체 식재료 목록에서 매칭 방식과 신뢰도를 표시합니다</p>
+            </div>
+          </div>
+
+          <!-- 한눈에 보기 -->
+          <div class="card card-pad" style="margin-bottom:20px">
+            <p class="muted small" style="margin:0 0 14px">한눈에 비교</p>
+            <div class="badge-grid">
+              <span class="match-badge exact">완전일치 · EXACT</span>
+              <span class="match-badge substring">포함일치 · SUBSTRING</span>
+              <span class="match-badge fuzzy">유사일치 · FUZZY</span>
+              <span class="match-badge synonym">동의어 · SYNONYM</span>
+              <span class="match-badge unmatched">미연결 · UNMATCHED</span>
+            </div>
+          </div>
+
+          <!-- 상세 설명 -->
+          <div class="badge-detail">
+
+            <div class="badge-row">
+              <span class="match-badge exact">완전일치 · EXACT</span>
+              <div class="badge-row-info">
+                <h4>완전일치 (EXACT)</h4>
+                <p>원재료명이 표준식품명과 정확히 일치합니다. 신뢰도 가장 높음.<br>예: "고추장" = 표준식품 "고추장"</p>
+              </div>
+            </div>
+
+            <div class="badge-row">
+              <span class="match-badge substring">포함일치 · SUBSTRING</span>
+              <div class="badge-row-info">
+                <h4>포함일치 (SUBSTRING)</h4>
+                <p>원재료명이 표준식품명을 포함하거나 그 반대입니다. 출처를 확인한 뒤 사용하세요.<br>예: "태양초 고추장" ⊃ 표준식품 "고추장"</p>
+              </div>
+            </div>
+
+            <div class="badge-row">
+              <span class="match-badge fuzzy">유사일치 · FUZZY</span>
+              <div class="badge-row-info">
+                <h4>유사일치 (FUZZY)</h4>
+                <p>편집거리 기반 유사 매칭입니다. 오타·略語 가능성이 있으며 정확성을 확인해야 합니다.<br>예: "고춧가루" ≈ "고추가루"</p>
+              </div>
+            </div>
+
+            <div class="badge-row">
+              <span class="match-badge synonym">동의어 · SYNONYM</span>
+              <div class="badge-row-info">
+                <h4>동의어 (SYNONYM)</h4>
+                <p>동의어·별칭 사전으로 연결된 매칭입니다. 동일 재료일 수 있으나 별도 확인이 필요합니다.<br>예: "간장" ↔ "진간장"</p>
+              </div>
+            </div>
+
+            <div class="badge-row">
+              <span class="match-badge unmatched">미연결 · UNMATCHED</span>
+              <div class="badge-row-info">
+                <h4>미연결 (UNMATCHED)</h4>
+                <p>표준식품 데이터와 연결되지 않았습니다. 유사도 분석과 대체 후보를 제공할 수 없습니다 (ST-07).<br>예: 신규 식재료명, 브랜드 고유명</p>
+              </div>
+            </div>
+
+          </div><!-- /badge-detail -->
+        </div><!-- /board-section MatchTypeBadge -->
+
+        <!-- ── 핵심 화면 링크 ── -->
+        <div class="board-section" style="margin-bottom:60px">
+          <div class="card card-pad" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <strong>핵심 9개 화면으로 돌아가기</strong>
+              <p class="muted small" style="margin:4px 0 0">이 상태 보드는 부록입니다. 핵심 시안은 index.html에서 확인하세요.</p>
+            </div>
+            <a class="button primary" href="index.html?screen=home">핵심 시안 보기 →</a>
+          </div>
+        </div>
+
+      </div><!-- /container -->
+    </main>
+
+    <footer>
+      <strong>FOODGROUND</strong>
+      <span>UI-GATE-2 상태·배지 시안 보드 — 부록</span>
+      <span>본 화면은 UI-GATE-2 검토용 시안이며 실제 판정·계약·법률 자문을 제공하지 않습니다.</span>
+    </footer>
+
+    <script>
+      // 모바일 메뉴
+      const btn = document.querySelector(".mobile-menu");
+      const drawer = document.querySelector(".mobile-drawer");
+      btn.addEventListener("click", () => {
+        const open = drawer.classList.toggle("open");
+        drawer.hidden = !open;
+        btn.setAttribute("aria-expanded", String(open));
+      });
+
+      // FB-01 데모
+      document.getElementById("demo-copy")?.addEventListener("click", async () => {
+        const fb = document.getElementById("demo-feedback");
+        try {
+          await navigator.clipboard.writeText("문의문안 데모 복사 텍스트");
+          fb.textContent = "문의문안을 복사했습니다.";
+          fb.style.color = "var(--green-dark)";
+        } catch {
+          fb.textContent = "브라우저에서 복사 권한을 확인해 주세요.";
+          fb.style.color = "#8b1a1a";
+        }
+        setTimeout(() => { fb.textContent = ""; }, 3000);
+      });
+    </script>
+  </body>
+</html>
