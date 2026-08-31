@@ -203,4 +203,52 @@ Pre-commit verdict: **PASS WITH STACKED-BRANCH CONDITION**. The candidate set is
 
 ---
 
-*Claude Code implemented 028B→028E2. Codex independently validated lint, typecheck, build, git diff, cold production response, and Playwright VS-I-001..024. VS-I local gate is COMPLETE; deployment remains unexecuted.*
+## 9. Stacked PR and Vercel Preview Evidence
+
+### 9.1 Git boundary
+
+| Item | Result |
+|------|--------|
+| Branch | `codex/chg-g6-002-vs-i-preview` |
+| First commit | `22aab01fcbdd9bb6c098dfca359fe4cd510f9130` |
+| Commit parent | `91c435f07908fab49fe2f127ed2a9a360e8f970b` |
+| Committed candidate boundary | Exactly 112 audited files |
+| Pull request | `#3` — `codex/chg-g6-001-g4-vs-01-preview` ← `codex/chg-g6-002-vs-i-preview` |
+| Pull request URL | `https://github.com/wavenvibe/foodground_official/pull/3` |
+| Merge | NOT EXECUTED |
+| Remote `main` | Unchanged at `68963ef82798aa3219ddf8e2344f0a4eab73c63f` |
+
+`.claude/settings.local.json`, `.env.local`, `output/`, and `03_공동제조 매칭 정확도(F1 SCORE)/` remain outside the commit. The branch was pushed without force.
+
+### 9.2 Preview deployment
+
+| Item | Result |
+|------|--------|
+| Vercel project | `foodground-official` (`prj_ukJaRLmcVUUeZEfMn0enjGWrk6Bb`) |
+| Deployment ID | `dpl_5EvJTqMC9UrahYHrjjB5DmvRSucg` |
+| Preview URL | `https://foodground-official-4qy9h0b8c-wavenvibeofficial-2926s-projects.vercel.app` |
+| Target / state | `preview` / `READY` |
+| Cloud build | PASS — dependency install, Next.js compile, TypeScript, static generation |
+| Production alias | Unchanged at `https://foodground-official.vercel.app` |
+| Production deployment | Unchanged at `dpl_5G666iP5aBn53B46cUJemn6r1B2a` |
+
+The Preview remains protected by Vercel Authentication. Protection was not disabled. Authenticated Chrome and Vercel CLI sessions were used for verification.
+
+### 9.3 Authenticated Preview QA
+
+| Check | Result |
+|-------|--------|
+| `/products` | PASS — real Supabase-backed list and 30 approved category options rendered |
+| `/products/177203860011` | PASS — product `물엿`, report number, and linked facility rendered |
+| `/facilities/4201000-106-1772-00001` | PASS — `성덕전통식품`, 72 linked products, HACCP/CCP and safety evidence boundary rendered |
+| `/manufacturing-brief` | PASS — manufacturing requirement entry screen rendered |
+| `/manufacturing-candidates?item=과자` | PASS — 46 product-type matches and evidence-ranked candidates rendered |
+| Desktop 1440×1000 | PASS — 4 primary screens, horizontal overflow 0, console errors 0 |
+| Mobile 390×844 | PASS — 4 primary screens, horizontal overflow 0, console errors 0 |
+| Candidate screen | PASS — horizontal overflow 0, console errors 0 |
+
+Preview verdict: **STACKED_PR_OPEN / VERCEL_PREVIEW_READY / AUTHENTICATED_QA_PASS / UAT_PENDING**. `main`, Production, and Supabase data were not changed.
+
+---
+
+*Claude Code implemented 028B→028E2. Codex independently validated lint, typecheck, build, git diff, local production runtime, Playwright VS-I-001..024, the 112-file commit boundary, stacked PR, Vercel Preview build, and authenticated responsive Preview screens. UAT and merge remain unexecuted.*

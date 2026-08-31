@@ -1,10 +1,10 @@
 # Current work
 
-- Gate: CHG-G6-002 / G4 VS-I 공식 Supabase 공개 런타임 연결 로컬 QA 완료
-- Work unit: 제품·시설·HACCP·공동제조 런타임 연결 마감 및 Preview 승인 준비
+- Gate: CHG-G6-002 / G4 VS-I stacked PR·Vercel Preview 검증 완료
+- Work unit: 제품·시설·HACCP·공동제조 공식 Supabase 런타임 Preview UAT
 - Work order: `.moai/project/work-orders/CHG-G6-002-G4-VS-I-SUPABASE-RUNTIME-WIRING-v0.1.md`
 - Approval record: `.moai/project/approvals/CHG-G6-002-APPROVAL-C.md`
-- Status: **VS_I_RUNTIME_WIRING_PASS / LOCAL_PRODUCTION_QA_PASS / PRECOMMIT_AUDIT_PASS / DEPLOYMENT_NOT_EXECUTED**
+- Status: **VS_I_RUNTIME_WIRING_PASS / PRECOMMIT_AUDIT_PASS / STACKED_PR_OPEN / VERCEL_PREVIEW_READY / AUTHENTICATED_QA_PASS / UAT_PENDING**
 - Active change baseline: `CHG-G6-002 v0.1`
 
 ## 정정된 기준
@@ -64,14 +64,18 @@
 21. 제품 카테고리: 원본 read-only 빈도 상위 30개 집계 JSON을 단일 런타임 출처로 적용, 초기 30회 REST 요청 제거
 22. 최종 독립검증: lint 0 errors, typecheck·build·diff PASS, fresh production `/products` 2.17초, Playwright **24/24 PASS**
 23. 커밋 전 감사: 후보 112개·2.61 MiB 확정, 실제 비밀키 0건, 개인설정·F1 원본 28개·output·환경파일 제외, 임시 패치 스크립트 제거, lint·typecheck·build·단위테스트 109건·dry-run 재검증 PASS
+24. 감사 후보 112개만 `codex/chg-g6-002-vs-i-preview`에 커밋하고 force 없이 push, stacked PR #3을 선행 Preview 브랜치 대상으로 생성
+25. Vercel Preview `dpl_5EvJTqMC9UrahYHrjjB5DmvRSucg` READY, 클라우드 build·TypeScript·정적생성 PASS
+26. 인증된 Chrome Preview QA: 제품 목록·제품 상세·시설 상세·제조요건·`과자` 후보 46개 실데이터 확인, 1440×1000·390×844 가로 넘침 0·콘솔 오류 0
+27. 원격 `main` `68963ef82798aa3219ddf8e2344f0a4eab73c63f`, Production `dpl_5G666iP5aBn53B46cUJemn6r1B2a` 불변 확인
 
 ## 다음 단계
 
-1. 사용자 별도 승인 후 현재 Preview 계보에서 `codex/chg-g6-002-vs-i-preview` 브랜치를 만들고 감사된 112개 후보만 커밋한다.
-2. VS-I 변경만 분리 검토하도록 최초 PR base를 기존 `codex/chg-g6-001-g4-vs-01-preview`로 두고 Vercel Preview를 검증한다.
+1. Preview URL에서 사용자 UAT를 수행하고 제품·업체·HACCP·공동제조 흐름을 승인 또는 반려한다.
+2. PR #3은 선행 Preview 브랜치가 정리되기 전 merge하지 않는다.
 3. Preview UAT와 선행 Preview 계보 정리 전 `main`·Production은 변경하지 않는다.
 
-**Approval C 공개 데이터와 VS-I 로컬 런타임 연결·production QA·커밋 전 감사까지 통과했다. 제품·시설·HACCP·안전정보·공동제조 조회는 공식 Supabase anon 경계에서 실데이터로 동작하며 24개 시나리오가 통과했다. Vercel·Git은 변경하지 않았다.**
+**Approval C 공개 데이터와 VS-I 런타임 연결·24개 로컬 시나리오·112개 후보 감사·stacked PR·Vercel Preview 검증까지 통과했다. 인증된 Preview에서 제품·시설·HACCP·안전정보·공동제조 실데이터와 반응형 화면을 확인했다. `main`과 Production은 변경하지 않았으며 사용자 UAT를 기다린다.**
 
 ## 현재 산출물
 
@@ -108,7 +112,7 @@
 
 - Approval C publish 재실행 또는 게시 데이터 수동 수정
 - 신규·기존 Supabase 데이터 추가 적재/publish
-- Vercel 재배포·환경변수 변경
-- commit·push·PR·merge
+- Vercel Production 재배포·환경변수 변경
+- PR merge·`main` push
 - 기존 `wavenvibe/foodground`, `foodground.vercel.app`, 기존 Supabase 쓰기
 - 가짜 제품·HACCP·CCP·공동제조 결과와 과거 F1의 런타임 성능 오표시
