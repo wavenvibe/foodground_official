@@ -71,6 +71,9 @@ START_*.md
 .claude/hooks/moai/handle-stop-goal.sh
 .claude/hooks/moai/sync-phase-quality-gate.sh
 
+# 승인된 읽기 전용 공동제조 F1 원본·평가자료 (로컬 증빙 전용)
+/03_공동제조 매칭 정확도(F1 SCORE)/
+
 # Supabase CLI 임시 파일
 /supabase/.temp/
 

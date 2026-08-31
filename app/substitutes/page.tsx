@@ -6,19 +6,31 @@ import MatchTypeBadge from "@/components/substitutes/MatchTypeBadge";
 import ProvenanceBadge from "@/components/substitutes/ProvenanceBadge";
 import LimitationNotice from "@/components/substitutes/LimitationNotice";
 import SubstituteCandidateList from "@/components/substitutes/SubstituteCandidateList";
+import ProductizationContextPanel from "@/components/manufacturing/ProductizationContextPanel";
+import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
 import { searchSubstitutes } from "@/lib/substitutes";
+import { productizationHref, type ProductizationContext } from "@/lib/productization-context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface SubstitutesPageProps {
-  searchParams: Promise<{ ingredient?: string; recipe?: string }>;
+  searchParams: Promise<{ ingredient?: string; ingredientId?: string; recipe?: string; recipeName?: string; sourceType?: string; sourceId?: string; sourceName?: string }>;
 }
 
 export default async function SubstitutesPage({ searchParams }: SubstitutesPageProps) {
   const params = await searchParams;
   const ingredientQuery = (params.ingredient ?? "").trim();
   const recipe = (params.recipe ?? "").trim();
+  const context: ProductizationContext = {
+    sourceType: recipe ? "recipe" : ingredientQuery ? "ingredient" : "direct",
+    sourceId: params.sourceId || recipe || params.ingredientId,
+    sourceName: params.sourceName || params.recipeName || ingredientQuery,
+    recipeId: recipe,
+    recipeName: params.recipeName,
+    ingredientId: params.ingredientId,
+    ingredientName: ingredientQuery,
+  };
 
   const outcome = ingredientQuery ? await searchSubstitutes(ingredientQuery) : null;
 
@@ -26,6 +38,7 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
     <div className="app-shell">
       <Header />
       <main className="page-container">
+        <ProductizationFlow current="substitute" context={context} />
         <header className="page-heading">
           <p className="eyebrow">SUBSTITUTE</p>
           <h1>대체 식재료 찾기</h1>
@@ -47,6 +60,11 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
             </label>
             <div className="substitute-search-form__field">
               {recipe && <input type="hidden" name="recipe" value={recipe} />}
+              {params.recipeName && <input type="hidden" name="recipeName" value={params.recipeName} />}
+              {params.ingredientId && <input type="hidden" name="ingredientId" value={params.ingredientId} />}
+              {params.sourceType && <input type="hidden" name="sourceType" value={params.sourceType} />}
+              {params.sourceId && <input type="hidden" name="sourceId" value={params.sourceId} />}
+              {params.sourceName && <input type="hidden" name="sourceName" value={params.sourceName} />}
               <input
                 id="substitute-input"
                 type="search"
@@ -64,6 +82,8 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
             </div>
           </div>
         </form>
+
+        <ProductizationContextPanel context={context} />
 
         {/* Initial state — no query yet */}
         {!ingredientQuery && (
@@ -90,7 +110,7 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
             title="결과를 불러오지 못했습니다"
             description="잠시 후 다시 시도해 주세요. 문제가 계속되면 추적번호와 함께 문의해 주세요."
             traceId={outcome.traceId}
-            actionHref={`/substitutes?ingredient=${encodeURIComponent(ingredientQuery)}`}
+            actionHref={productizationHref("/substitutes", context)}
             actionLabel="다시 시도"
           />
         )}
@@ -163,7 +183,12 @@ export default async function SubstitutesPage({ searchParams }: SubstitutesPageP
               candidates={outcome.data.candidates}
               sourceFood={outcome.data.source_food}
               ingredient={ingredientQuery}
+              ingredientId={params.ingredientId ?? ""}
               recipe={recipe}
+              recipeName={params.recipeName ?? ""}
+              sourceType={context.sourceType}
+              sourceId={context.sourceId ?? ""}
+              sourceName={context.sourceName ?? ""}
             />
 
             {outcome.data.basis_date && (

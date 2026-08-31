@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StatePanel from "@/components/StatePanel";
+import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
 import { getPublicRecipe } from "@/lib/recipes";
+import { productizationHref, type ProductizationContext } from "@/lib/productization-context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,6 +19,13 @@ export default async function RecipeDetailPage({
   const outcome = await getPublicRecipe(id);
 
   if (outcome.ok && !outcome.data) notFound();
+  const recipeContext: ProductizationContext | null = outcome.ok && outcome.data ? {
+    sourceType: "recipe",
+    sourceId: id,
+    sourceName: outcome.data.title,
+    recipeId: id,
+    recipeName: outcome.data.title,
+  } : null;
 
   return (
     <div className="app-shell">
@@ -33,6 +42,7 @@ export default async function RecipeDetailPage({
           />
         ) : outcome.data ? (
           <article className="resource-detail">
+            <ProductizationFlow current="source" context={recipeContext ?? {}} />
             <header>
               <p className="eyebrow">RECIPE</p>
               <h1>{outcome.data.title}</h1>
@@ -52,7 +62,7 @@ export default async function RecipeDetailPage({
                     .filter((ing) => !ing.is_seasoning)
                     .map((ing) => (
                       <div key={ing.ingredient_id} className="recipe-ingredient-row">
-                        <Link href={`/ingredients/${ing.ingredient_id}?recipe=${id}`} className="recipe-ingredient-row__name">
+                        <Link href={productizationHref(`/ingredients/${ing.ingredient_id}`, { ...(recipeContext ?? {}), ingredientId: String(ing.ingredient_id), ingredientName: ing.ingredient_name })} className="recipe-ingredient-row__name">
                           {ing.ingredient_name}
                         </Link>
                         <span className="recipe-ingredient-row__amount">
@@ -70,7 +80,7 @@ export default async function RecipeDetailPage({
                         .filter((ing) => ing.is_seasoning)
                         .map((ing) => (
                           <div key={ing.ingredient_id} className="recipe-ingredient-row">
-                            <Link href={`/ingredients/${ing.ingredient_id}?recipe=${id}`} className="recipe-ingredient-row__name">
+                            <Link href={productizationHref(`/ingredients/${ing.ingredient_id}`, { ...(recipeContext ?? {}), ingredientId: String(ing.ingredient_id), ingredientName: ing.ingredient_name })} className="recipe-ingredient-row__name">
                               {ing.ingredient_name}
                             </Link>
                             <span className="recipe-ingredient-row__amount">
@@ -85,6 +95,8 @@ export default async function RecipeDetailPage({
             ) : (
               <p className="resource-detail__empty">식재료 정보가 없습니다.</p>
             )}
+
+            <section className="evidence-section productization-cta" aria-labelledby="recipe-productization"><div><p className="eyebrow">NEXT STEP</p><h2 id="recipe-productization">원재료를 골라 대체안까지 검토</h2><p>위 식재료 이름을 선택하면 이 레시피 맥락을 유지한 채 대체안 비교와 제조요건 확인으로 이어집니다. 대체 검토가 필요 없다면 바로 브리프를 작성할 수 있습니다.</p></div><Link className="button button--secondary" href={productizationHref("/manufacturing-brief", recipeContext ?? {})}>대체 검토 없이 브리프 작성</Link></section>
 
             <aside className="data-note">
               공공데이터를 바탕으로 제공하는 참고정보입니다. 실제 조리 시 분량이나 재료가 다를 수 있습니다.

@@ -8,17 +8,23 @@ interface InquiryFormProps {
   ingredient: string;
   substitute: string;
   recipe: string;
+  recipeName: string;
+  sourceName: string;
+  item: string;
+  process: string;
 }
 
 function buildTemplate(props: InquiryFormProps): string {
-  const { facilityName, ingredient, substitute, recipe } = props;
+  const { facilityName, ingredient, substitute, recipe, recipeName, sourceName, item, process } = props;
   const lines: string[] = [];
   lines.push(`안녕하세요. ${facilityName || "귀사"}에 공동제조 문의드립니다.`);
   lines.push("");
-  if (recipe) lines.push(`■ 참고 레시피: 레시피 #${recipe}`);
+  if (recipe) lines.push(`■ 참고 레시피: ${recipeName || `레시피 #${recipe}`}`);
   if (ingredient) lines.push(`■ 주요 식재료: ${ingredient}`);
   if (substitute) lines.push(`■ 대체 식재료 후보: ${substitute}`);
-  lines.push("■ 개발 또는 제조 희망 제품: ");
+  if (sourceName) lines.push(`■ 제품화 시작점: ${sourceName}`);
+  lines.push(`■ 개발 또는 제조 희망 제품: ${item}`);
+  if (process) lines.push(`■ 필수 공정·CCP: ${process}`);
   lines.push("■ 희망 수량: ");
   lines.push("■ 희망 일정: ");
   lines.push("■ HACCP 필요 여부: ");

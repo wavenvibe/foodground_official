@@ -3,6 +3,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import InquiryForm from "./InquiryForm";
 import { getPublicFacility } from "@/lib/facilities";
+import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
+import type { ProductizationContext, ProductizationSourceType } from "@/lib/productization-context";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,15 @@ interface InquiryPageProps {
     ingredient?: string;
     substitute?: string;
     recipe?: string;
+    recipeName?: string;
+    ingredientId?: string;
+    substituteId?: string;
+    sourceType?: string;
+    sourceId?: string;
     back?: string;
+    sourceName?: string;
+    item?: string;
+    process?: string;
   }>;
 }
 
@@ -21,7 +31,7 @@ function safeBack(back: string | undefined): string {
   if (!back) return "/facilities";
   try {
     const decoded = decodeURIComponent(back);
-    if (/^\/facilities(\?[^<>"]*)?$/.test(decoded)) return decoded;
+    if (/^\/facilities(?:\/[0-9A-Za-z_-]+)?(?:\?[^<>"]*)?$/.test(decoded)) return decoded;
   } catch {
     // malformed percent-encoding — fall through to default
   }
@@ -35,7 +45,23 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
   const ingredient = params.ingredient ?? "";
   const substitute = params.substitute ?? "";
   const recipe = params.recipe ?? "";
+  const recipeName = params.recipeName ?? "";
+  const sourceName = params.sourceName ?? "";
+  const item = params.item ?? "";
+  const process = params.process ?? "";
   const backUrl = safeBack(params.back);
+  const context: ProductizationContext = {
+    sourceType: (params.sourceType || (recipe ? "recipe" : "direct")) as ProductizationSourceType,
+    sourceId: params.sourceId,
+    sourceName,
+    recipeId: recipe,
+    recipeName,
+    ingredientId: params.ingredientId,
+    ingredientName: ingredient,
+    substituteId: params.substituteId,
+    substituteName: substitute,
+    item,
+  };
 
   // Fetch facility contact info if ID is present
   const facilityOutcome = facilityId ? await getPublicFacility(facilityId) : null;
@@ -51,6 +77,7 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
     <div className="app-shell">
       <Header />
       <main className="page-container">
+        <ProductizationFlow current="inquiry" context={context} />
         <nav aria-label="뒤로가기" style={{ marginBottom: "1rem" }}>
           <Link href={backUrl} className="button button--secondary">
             ← 시설 정보로 돌아가기
@@ -67,7 +94,7 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
         </header>
 
         {/* Context summary */}
-        {(facilityName || ingredient || substitute || recipe) && (
+        {(facilityName || ingredient || substitute || recipe || sourceName || item || process) && (
           <aside
             className="inquiry-context"
             aria-label="문의 맥락"
@@ -77,7 +104,7 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
               {recipe && (
                 <>
                   <dt>레시피</dt>
-                  <dd>레시피 #{recipe}</dd>
+                  <dd>{recipeName || `레시피 #${recipe}`}</dd>
                 </>
               )}
               {ingredient && (
@@ -92,6 +119,9 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
                   <dd>{substitute}</dd>
                 </>
               )}
+              {sourceName && <><dt>제품화 시작점</dt><dd>{sourceName}</dd></>}
+              {item && <><dt>제품유형</dt><dd>{item}</dd></>}
+              {process && <><dt>필수 공정·CCP</dt><dd>{process}</dd></>}
               {facilityName && (
                 <>
                   <dt>문의 시설</dt>
@@ -151,6 +181,10 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
           ingredient={ingredient}
           substitute={substitute}
           recipe={recipe}
+          recipeName={recipeName}
+          sourceName={sourceName}
+          item={item}
+          process={process}
         />
 
         <aside className="data-note" style={{ marginTop: "1.5rem" }}>

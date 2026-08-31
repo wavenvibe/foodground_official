@@ -4,7 +4,10 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StatePanel from "@/components/StatePanel";
 import ContactButton from "@/components/facilities/ContactButton";
+import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
 import { getPublicFacility, type FacilityListItem } from "@/lib/facilities";
+import { getSourceFacilityEvidence } from "@/lib/source-db";
+import type { ProductizationContext, ProductizationSourceType } from "@/lib/productization-context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -79,12 +82,25 @@ const STATUS_CLASS: Record<MatchStatus, string> = {
   "정보 없음": "filter-condition__status--unknown",
 };
 
+function formatCcp(value: string | null): string {
+  if (!value) return "공정·CCP 상세정보 없음";
+  if (value.trim().startsWith("[")) {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.filter((item) => typeof item === "string").join(" · ") || "공정·CCP 상세정보 없음";
+    } catch {
+      // Show the original source text when the legacy JSON is malformed.
+    }
+  }
+  return value;
+}
+
 export default async function FacilityDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ back?: string; ingredient?: string; substitute?: string; recipe?: string }>;
+  searchParams: Promise<{ back?: string; ingredient?: string; ingredientId?: string; substitute?: string; substituteId?: string; recipe?: string; recipeName?: string; product?: string; sourceType?: string; sourceId?: string; sourceName?: string; item?: string; region?: string; ccp?: string | string[]; cooking?: string; sterilize?: string; candidate?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -92,38 +108,93 @@ export default async function FacilityDetailPage({
   const ingredient = sp.ingredient ?? "";
   const substitute = sp.substitute ?? "";
   const recipe = sp.recipe ?? "";
+  const product = sp.product ?? "";
+  const sourceType = sp.sourceType ?? "";
+  const sourceId = sp.sourceId ?? "";
+  const sourceName = sp.sourceName ?? "";
+  const manufacturingItem = sp.item ?? "";
+  const manufacturingRegion = sp.region ?? "";
+  const manufacturingCcp = Array.isArray(sp.ccp) ? sp.ccp : sp.ccp ? [sp.ccp] : [];
+  const manufacturingProcess = [sp.cooking === "1" ? "가열" : "", sp.sterilize === "1" ? "살균" : ""].filter(Boolean);
+  const productizationContext: ProductizationContext = {
+    sourceType: (sourceType || "direct") as ProductizationSourceType,
+    sourceId,
+    sourceName,
+    recipeId: recipe,
+    recipeName: sp.recipeName,
+    ingredientId: sp.ingredientId,
+    ingredientName: ingredient,
+    substituteId: sp.substituteId,
+    substituteName: substitute,
+    item: manufacturingItem,
+    region: manufacturingRegion,
+    requiredCcp: manufacturingCcp,
+    cooking: sp.cooking === "1",
+    sterilize: sp.sterilize === "1",
+  };
 
-  const outcome = await getPublicFacility(id);
+  const evidenceOutcome = await getSourceFacilityEvidence(id);
+  const outcome = evidenceOutcome.ok && evidenceOutcome.data
+    ? { ok: true as const, data: null, traceId: evidenceOutcome.traceId }
+    : await getPublicFacility(id);
 
-  if (outcome.ok && !outcome.data) notFound();
+  const sourceFacility = evidenceOutcome.ok ? evidenceOutcome.data?.facility : null;
+  const facility: FacilityListItem | null = outcome.ok && outcome.data
+    ? outcome.data
+    : sourceFacility
+      ? {
+          mgt_no: sourceFacility.mgt_no,
+          name: sourceFacility.name,
+          business_type: sourceFacility.business_type,
+          status: sourceFacility.status ?? "정보 없음",
+          region_sido: sourceFacility.region_sido,
+          region_sigungu: sourceFacility.region_sigungu,
+          is_haccp: sourceFacility.is_haccp,
+          tel: sourceFacility.tel,
+          homepage: sourceFacility.homepage,
+          created_at: sourceFacility.updated_at,
+          ingest_run_id: null,
+        }
+      : null;
+
+  if (outcome.ok && !outcome.data && evidenceOutcome.ok && !evidenceOutcome.data) notFound();
 
   const filterConditions =
-    outcome.ok && outcome.data ? buildFilterConditions(backUrl, outcome.data) : [];
+    facility ? buildFilterConditions(backUrl, facility) : [];
 
   const inquiryParams = new URLSearchParams();
   inquiryParams.set("facility", id);
-  if (outcome.ok && outcome.data) inquiryParams.set("facilityName", outcome.data.name);
+  if (facility) inquiryParams.set("facilityName", facility.name);
   inquiryParams.set("back", `/facilities/${encodeURIComponent(id)}`);
   if (ingredient) inquiryParams.set("ingredient", ingredient);
   if (substitute) inquiryParams.set("substitute", substitute);
   if (recipe) inquiryParams.set("recipe", recipe);
+  if (sp.recipeName) inquiryParams.set("recipeName", sp.recipeName);
+  if (sp.ingredientId) inquiryParams.set("ingredientId", sp.ingredientId);
+  if (sp.substituteId) inquiryParams.set("substituteId", sp.substituteId);
+  if (sourceType) inquiryParams.set("sourceType", sourceType);
+  if (sourceId) inquiryParams.set("sourceId", sourceId);
+  if (sourceName) inquiryParams.set("sourceName", sourceName);
+  if (manufacturingItem) inquiryParams.set("item", manufacturingItem);
+  if (manufacturingCcp.length) inquiryParams.set("process", manufacturingCcp.join(", "));
   const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   return (
     <div className="app-shell">
       <Header />
       <main className="page-container">
-        {!outcome.ok ? (
+        {!facility ? (
           <StatePanel
-            tone={outcome.error.retryable ? "error" : "warning"}
-            title={outcome.error.retryable ? "업체 정보를 불러오지 못했습니다" : "올바르지 않은 업체 주소입니다"}
-            description={outcome.error.message}
-            traceId={outcome.traceId}
+            tone="error"
+            title="업체 정보를 불러오지 못했습니다"
+            description={!outcome.ok ? outcome.error.message : !evidenceOutcome.ok ? evidenceOutcome.error.message : "제조시설을 찾을 수 없습니다."}
+            traceId={!outcome.ok ? outcome.traceId : evidenceOutcome.traceId}
             actionHref="/facilities"
             actionLabel="업체 검색으로"
           />
-        ) : outcome.data ? (
+        ) : (
           <>
+            <ProductizationFlow current="facility" context={productizationContext} />
             <nav className="facility-detail__back" aria-label="뒤로가기">
               <Link href={backUrl} className="button button--secondary">
                 ← 검색 결과로 돌아가기
@@ -145,6 +216,21 @@ export default async function FacilityDetailPage({
                 </p>
               </aside>
             )}
+
+            {product ? (
+              <aside className="facility-context-note facility-context-note--detail" aria-label="제품 연결 맥락">
+                <p>품목보고번호 <strong>{product}</strong>에서 직접 연결된 제조시설 근거를 확인하고 있습니다.</p>
+              </aside>
+            ) : null}
+
+            {manufacturingItem ? (
+              <aside className="facility-context-note facility-context-note--detail manufacturing-facility-context" aria-label="제품화 브리프 맥락">
+                <p className="eyebrow">PRODUCTIZATION CONTEXT</p>
+                <h2>{sp.candidate || facility.name} 후보 근거 검증</h2>
+                <dl><div><dt>시작점</dt><dd>{sourceName ? `${sourceType === "recipe" ? "레시피" : "제품"} · ${sourceName}` : "직접 브리프"}{sourceId ? ` · ${sourceId}` : ""}</dd></div><div><dt>제품유형</dt><dd>{manufacturingItem}</dd></div><div><dt>희망지역</dt><dd>{manufacturingRegion || "전국"}</dd></div><div><dt>필수 CCP</dt><dd>{manufacturingCcp.join(", ") || "지정 없음"}</dd></div><div><dt>공정 묶음</dt><dd>{manufacturingProcess.join(", ") || "지정 없음"}</dd></div></dl>
+                <p className="facility-context-note__disclaimer">아래 생산제품·HACCP·CCP·안전정보를 직접 검증한 뒤, 미확인 조건만 업체에 문의하세요.</p>
+              </aside>
+            ) : null}
 
             {filterConditions.length > 0 && (
               <aside className="facility-detail__filter-context" aria-label="검색 조건 충족 여부">
@@ -176,47 +262,71 @@ export default async function FacilityDetailPage({
             <article className="facility-detail">
               <header>
                 <p className="eyebrow">FACILITY</p>
-                <h1>{outcome.data.name}</h1>
+                <h1>{facility.name}</h1>
                 <div className="facility-card__chips">
-                  {outcome.data.is_haccp ? <span className="chip chip--success">HACCP 인증</span> : null}
-                  {outcome.data.business_type ? <span className="chip">{outcome.data.business_type}</span> : null}
-                  <span className="chip">{outcome.data.status}</span>
+                  {facility.is_haccp ? <span className="chip chip--success">HACCP 인증</span> : null}
+                  {facility.business_type ? <span className="chip">{facility.business_type}</span> : null}
+                  <span className="chip">{facility.status}</span>
                 </div>
               </header>
               <dl className="facility-detail__data">
                 <div>
                   <dt>지역</dt>
-                  <dd>{[outcome.data.region_sido, outcome.data.region_sigungu].filter(Boolean).join(" ") || "-"}</dd>
+                  <dd>{[facility.region_sido, facility.region_sigungu].filter(Boolean).join(" ") || "-"}</dd>
                 </div>
                 <div>
                   <dt>전화</dt>
                   <dd>
-                    {outcome.data.tel ? (
-                      <a href={`tel:${outcome.data.tel}`}>{outcome.data.tel}</a>
+                    {facility.tel ? (
+                      <a href={`tel:${facility.tel}`}>{facility.tel}</a>
                     ) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt>홈페이지</dt>
                   <dd>
-                    {safeHomepage(outcome.data.homepage) ? (
-                      <a href={safeHomepage(outcome.data.homepage)!} target="_blank" rel="noopener noreferrer">
-                        {outcome.data.homepage}
+                    {safeHomepage(facility.homepage) ? (
+                      <a href={safeHomepage(facility.homepage)!} target="_blank" rel="noopener noreferrer">
+                        {facility.homepage}
                       </a>
                     ) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt>공개정보 기준일</dt>
-                  <dd>{outcome.data.created_at?.slice(0, 10) || "-"}</dd>
+                  <dd>{facility.created_at?.slice(0, 10) || "-"}</dd>
                 </div>
               </dl>
               <aside className="data-note">
                 공공데이터를 바탕으로 제공하는 참고정보입니다. 계약이나 발주 전에는 업체에 직접 확인해 주세요.
               </aside>
+              <section className="evidence-section facility-evidence" aria-labelledby="facility-products">
+                <div className="evidence-section__head"><h2 id="facility-products">이 업체의 생산제품</h2><span>{evidenceOutcome.ok && evidenceOutcome.data ? `${evidenceOutcome.data.productTotal.toLocaleString()}건` : "연결 필요"}</span></div>
+                {!evidenceOutcome.ok ? (
+                  <StatePanel tone="warning" title="제품·인증 원본 연결이 필요합니다" description={evidenceOutcome.error.message} traceId={evidenceOutcome.traceId} />
+                ) : evidenceOutcome.data ? (
+                  <>
+                    {evidenceOutcome.data.products.length ? <div className="linked-product-list">{evidenceOutcome.data.products.map((item) => <Link className="linked-product" key={item.report_no} href={`/products/${encodeURIComponent(item.report_no)}`}><span>{item.product_name}</span><small>{item.category || "유형 정보 없음"} · {item.reported_at?.slice(0, 10) || "신고일 없음"}</small></Link>)}</div> : <StatePanel title="연결된 생산제품이 없습니다" description="관리번호로 직접 연결된 품목보고 원본이 없습니다." />}
+                    {evidenceOutcome.data.productTotal > evidenceOutcome.data.products.length ? <Link className="button button--secondary" href={`/products?facility=${encodeURIComponent(id)}`}>전체 생산제품 {evidenceOutcome.data.productTotal.toLocaleString()}건 보기</Link> : null}
+                  </>
+                ) : <StatePanel title="원본에서 시설을 찾지 못했습니다" description="현재 공개시설과 제품 원본의 관리번호 연결을 다시 확인해 주세요." />}
+              </section>
+
+              {evidenceOutcome.ok && evidenceOutcome.data ? (
+                <>
+                  <section className="evidence-section" aria-labelledby="facility-haccp"><div className="evidence-section__head"><h2 id="facility-haccp">HACCP 인증·CCP 정보</h2><span>{evidenceOutcome.data.haccp.length}건</span></div>
+                    {evidenceOutcome.data.haccp.length ? <div className="evidence-grid">{evidenceOutcome.data.haccp.map((cert, index) => <article className="evidence-card" key={`${cert.cert_no ?? "cert"}-${index}`}><h3>{cert.cert_no || "인증번호 정보 없음"}</h3><p>인증일 {cert.cert_date?.slice(0, 10) || "-"}</p><p className="evidence-card__body">{formatCcp(cert.ccp_list)}</p></article>)}</div> : <StatePanel title="연결된 인증 원본이 없습니다" description="시설의 HACCP 표시와 인증서·CCP 원본 연결은 별도로 확인해야 합니다." />}
+                  </section>
+                  <section className="evidence-section" aria-labelledby="facility-safety"><div className="evidence-section__head"><h2 id="facility-safety">업체 직접 연결 안전정보</h2><span>{evidenceOutcome.data.safety.length}건</span></div>
+                    {evidenceOutcome.data.safety.length ? <div className="evidence-grid">{evidenceOutcome.data.safety.map((item, index) => <article className="evidence-card evidence-card--warning" key={`${item.product_code ?? item.product_name ?? "safety"}-${index}`}><h3>{item.product_name || "제품명 정보 없음"}</h3><p>{item.reason || "사유 정보 없음"}</p><p className="evidence-card__body">{item.method || "조치정보 없음"} · {item.published_at?.slice(0, 10) || "공개일 없음"}</p></article>)}</div> : <StatePanel title="직접 연결된 안전정보 없음" description="안전 판정이 아니라 이 시설 관리번호에 직접 연결된 공개 안전정보가 없다는 뜻입니다." />}
+                  </section>
+                  <aside className="data-note">HACCP은 시설 수준 인증이며 특정 제품·모든 공정의 자동 적합 판정이 아닙니다. 안전정보도 관리번호로 직접 연결된 원본만 표시합니다.</aside>
+                </>
+              ) : null}
+
               <ContactButton
-                facilityName={outcome.data.name}
-                isHaccp={outcome.data.is_haccp}
+                facilityName={facility.name}
+                isHaccp={facility.is_haccp}
               />
 
               {/* 문의 준비 링크 — URL 맥락 보존 */}
@@ -234,7 +344,7 @@ export default async function FacilityDetailPage({
               </div>
             </article>
           </>
-        ) : null}
+        )}
       </main>
       <Footer />
     </div>

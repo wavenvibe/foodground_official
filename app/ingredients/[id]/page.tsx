@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StatePanel from "@/components/StatePanel";
+import ProductizationContextPanel from "@/components/manufacturing/ProductizationContextPanel";
+import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
 import { getPublicIngredient } from "@/lib/ingredients";
+import { productizationHref, type ProductizationContext } from "@/lib/productization-context";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,7 +16,7 @@ export default async function IngredientDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ back?: string; recipe?: string }>;
+  searchParams: Promise<{ back?: string; recipe?: string; recipeName?: string; sourceType?: string; sourceId?: string; sourceName?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -21,6 +24,15 @@ export default async function IngredientDetailPage({
   const outcome = await getPublicIngredient(id);
 
   if (outcome.ok && !outcome.data) notFound();
+  const context: ProductizationContext = outcome.ok && outcome.data ? {
+    sourceType: recipe ? "recipe" : "ingredient",
+    sourceId: recipe || id,
+    sourceName: sp.recipeName || outcome.data.ingredient_name,
+    recipeId: recipe,
+    recipeName: sp.recipeName,
+    ingredientId: id,
+    ingredientName: outcome.data.ingredient_name,
+  } : {};
 
   return (
     <div className="app-shell">
@@ -37,6 +49,8 @@ export default async function IngredientDetailPage({
           />
         ) : outcome.data ? (
           <article className="resource-detail">
+            <ProductizationFlow current="ingredient" context={context} />
+            <ProductizationContextPanel context={context} />
             <nav aria-label="뒤로가기" style={{ marginBottom: "1rem" }}>
               {recipe ? (
                 <Link href={`/recipes/${recipe}`} className="button button--secondary">
@@ -82,7 +96,7 @@ export default async function IngredientDetailPage({
                 <strong>{outcome.data.ingredient_name}</strong>와 영양 성분·조리 특성이 유사한 대체 식재료를 찾아보세요.
               </p>
               <Link
-                href={`/substitutes?ingredient=${encodeURIComponent(outcome.data.ingredient_name)}${recipe ? `&recipe=${encodeURIComponent(recipe)}` : ""}`}
+                href={productizationHref("/substitutes", context)}
                 className="button button--point"
               >
                 대체 식재료 분석
