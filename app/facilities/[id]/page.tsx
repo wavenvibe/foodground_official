@@ -5,9 +5,11 @@ import Header from "@/components/Header";
 import StatePanel from "@/components/StatePanel";
 import ContactButton from "@/components/facilities/ContactButton";
 import ProductizationFlow from "@/components/manufacturing/ProductizationFlow";
+import SaveButton from "@/components/saved/SaveButton";
 import { getPublicFacility, type FacilityListItem } from "@/lib/facilities";
 import { getSourceFacilityEvidence } from "@/lib/source-db";
 import type { ProductizationContext, ProductizationSourceType } from "@/lib/productization-context";
+import { SAVED_KEYS, type SavedFacility } from "@/lib/saved-items";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -268,6 +270,13 @@ export default async function FacilityDetailPage({
                   {facility.business_type ? <span className="chip">{facility.business_type}</span> : null}
                   <span className="chip">{facility.status}</span>
                 </div>
+                <SaveButton<SavedFacility>
+                  storageKey={SAVED_KEYS.facilities}
+                  itemKey="mgt_no"
+                  item={{ mgt_no: facility.mgt_no, name: facility.name, biz_type: facility.business_type, region_sido: facility.region_sido, region_sigungu: facility.region_sigungu, status: facility.status, is_haccp: facility.is_haccp, saved_at: new Date().toISOString() }}
+                  label="제조 후보로 저장"
+                  savedLabel="제조 후보 저장됨"
+                />
               </header>
               <dl className="facility-detail__data">
                 <div>

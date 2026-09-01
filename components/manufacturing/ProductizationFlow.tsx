@@ -2,12 +2,11 @@ import Link from "next/link";
 import { productizationHref, type ProductizationContext } from "@/lib/productization-context";
 
 const STEPS = [
-  ["source", "1", "시작"],
-  ["ingredient", "2", "식재료"],
-  ["substitute", "3", "대체안"],
-  ["brief", "4", "제조요건"],
-  ["facility", "5", "제조후보·업체검증"],
-  ["inquiry", "6", "문의"],
+  ["source", "1", "레시피·제품"],
+  ["substitute", "2", "대체재료"],
+  ["brief", "3", "제조조건"],
+  ["facility", "4", "제조후보·근거"],
+  ["inquiry", "5", "문의"],
 ] as const;
 
 export type ProductizationStep = (typeof STEPS)[number][0];
@@ -16,11 +15,7 @@ function stepHref(step: ProductizationStep, context: ProductizationContext): str
   if (step === "source") {
     if (context.sourceType === "recipe" && context.recipeId) return `/recipes/${encodeURIComponent(context.recipeId)}`;
     if (context.sourceType === "product" && context.sourceId) return `/products/${encodeURIComponent(context.sourceId)}`;
-    if (context.sourceType === "ingredient" && context.ingredientId) return `/ingredients/${encodeURIComponent(context.ingredientId)}`;
     return null;
-  }
-  if (step === "ingredient" && context.ingredientId) {
-    return productizationHref(`/ingredients/${encodeURIComponent(context.ingredientId)}`, context);
   }
   if (step === "substitute" && context.ingredientName) return productizationHref("/substitutes", context);
   if (step === "brief") return productizationHref("/manufacturing-brief", context);

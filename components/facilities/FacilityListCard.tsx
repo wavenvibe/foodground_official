@@ -1,5 +1,7 @@
 import Link from "next/link";
+import SaveButton from "@/components/saved/SaveButton";
 import type { FacilityListItem } from "@/lib/facilities";
+import { SAVED_KEYS, type SavedFacility } from "@/lib/saved-items";
 
 export default function FacilityListCard({
   facility,
@@ -41,9 +43,15 @@ export default function FacilityListCard({
       </div>
       <div className="facility-card__foot">
         <span>공공데이터 · 계약 전 업체에 직접 확인</span>
-        <Link className="button button--secondary" href={detailHref}>
-          상세 보기
-        </Link>
+        <div className="facility-card__actions">
+          <SaveButton<SavedFacility>
+            storageKey={SAVED_KEYS.facilities}
+            itemKey="mgt_no"
+            item={{ mgt_no: facility.mgt_no, name: facility.name, biz_type: facility.business_type, region_sido: facility.region_sido, region_sigungu: facility.region_sigungu, status: facility.status, is_haccp: facility.is_haccp, saved_at: new Date().toISOString() }}
+            compact
+          />
+          <Link className="button button--secondary" href={detailHref}>업체 근거 보기</Link>
+        </div>
       </div>
     </article>
   );

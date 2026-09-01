@@ -1564,7 +1564,8 @@ select:focus-visible {
 .product-evidence-list { display: grid; gap: 12px; }
 .product-context-note { margin-bottom: 14px; }
 .product-evidence-card { padding: 20px; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow-sm); }
-.product-evidence-card__head { display: flex; justify-content: space-between; gap: 18px; }
+.product-evidence-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 8px; }
+.product-evidence-card__head .facility-card__chips { align-items: flex-start; justify-content: flex-end; }
 .product-evidence-card h2 { margin: 3px 0 12px; font-size: 1.15rem; line-height: 1.35; }
 .product-evidence-card h2 a { color: var(--ink); text-decoration: none; }
 .product-evidence-card h2 a:hover { text-decoration: underline; text-decoration-color: var(--green-500); text-decoration-thickness: 3px; text-underline-offset: 3px; }
@@ -1602,16 +1603,66 @@ select:focus-visible {
 .product-flow a > span { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: var(--green-500); color: var(--green-cta-text); font-weight: 800; }
 .product-flow strong { font-size: .98rem; }
 .product-flow small { color: var(--ink-2); line-height: 1.45; }
+.product-flow-groups { display: grid; gap: 22px; }
+.product-flow-group { display: grid; grid-template-columns: minmax(190px, .72fr) minmax(0, 2fr); gap: 22px; align-items: stretch; padding: 22px; border: 1px solid var(--rule); border-radius: 16px; background: color-mix(in srgb, var(--green-50) 55%, var(--paper)); }
+.product-flow-group h3 { margin: 2px 0 8px; color: var(--green-900); font-size: 1.2rem; }
+.product-flow-group > div > p:last-child { margin: 0; color: var(--ink-2); line-height: 1.55; }
+.product-flow--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.product-flow--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.review-save { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: fit-content; margin-top: 14px; padding: 9px 13px; border: 1px solid var(--green-300); border-radius: 9px; background: var(--paper); color: var(--green-700); font-weight: 700; cursor: pointer; }
+.review-save[aria-pressed="true"] { background: var(--green-100); }
+.review-save:disabled { cursor: wait; opacity: .55; }
+.review-save--compact { margin-top: 0; padding: 8px 11px; font-size: .82rem; }
+.facility-card__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.review-tray-fab { position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; background: var(--slate); color: #fff; text-decoration: none; box-shadow: 0 10px 28px rgba(16, 34, 28, .28); }
+.review-tray-fab em { display: grid; min-width: 24px; height: 24px; place-items: center; padding: 0 6px; border-radius: 999px; background: var(--green-500); color: var(--green-cta-text); font-style: normal; font-size: .78rem; font-weight: 800; }
+.review-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.review-total { flex: 0 0 auto; padding: 8px 12px; border-radius: 999px; background: var(--green-100); color: var(--green-900); }
+.review-sections { display: grid; gap: 18px; margin-top: 22px; }
+.review-section { padding: 22px; border: 1px solid var(--rule); border-radius: 14px; background: var(--paper); box-shadow: var(--shadow-sm); }
+.review-section--factory { border-color: var(--green-300); }
+.review-section__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+.review-section__head h2 { margin: 0 0 4px; color: var(--green-900); }
+.review-section__head p { margin: 0; color: var(--ink-2); }
+.review-section__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.review-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.review-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 14px; border: 1px solid var(--rule); border-radius: 10px; background: var(--bg); }
+.review-list li > div { display: grid; gap: 4px; min-width: 0; }
+.review-list a { color: var(--green-900); text-decoration: none; }
+.review-list small { color: var(--ink-2); }
+.review-list button { border: 0; background: transparent; color: var(--warn); cursor: pointer; }
+.review-empty { margin: 0; padding: 20px; border-radius: 10px; background: var(--bg); color: var(--ink-2); text-align: center; }
+.review-empty--large { display: grid; justify-items: center; gap: 10px; padding: 44px 22px; }
+.review-empty--large h2, .review-empty--large p { margin: 0; }
+.facility-compare-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--rule); border-radius: 14px; background: var(--paper); }
+.facility-compare-table { width: 100%; min-width: 760px; border-collapse: collapse; }
+.facility-compare-table caption { padding: 16px; color: var(--ink-2); text-align: left; }
+.facility-compare-table th, .facility-compare-table td { padding: 15px; border-top: 1px solid var(--rule); border-right: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.facility-compare-table th:last-child, .facility-compare-table td:last-child { border-right: 0; }
+.facility-compare-table thead th { background: var(--green-50); color: var(--green-900); }
 
 @media (max-width: 767px) {
   .product-discovery-layout { grid-template-columns: 1fr; }
   .product-filters { grid-template-columns: 1fr; }
   .product-evidence-card__head { flex-direction: column; }
+  .product-evidence-card__head .facility-card__chips { justify-content: flex-start; }
   .product-evidence-card__facts { grid-template-columns: 1fr; }
   .evidence-grid { grid-template-columns: 1fr; }
   .linked-product { flex-direction: column; }
   .linked-product small { text-align: left; }
   .product-flow { grid-template-columns: 1fr 1fr; }
+  .product-flow-group { grid-template-columns: 1fr; padding: 17px; }
+  .product-flow--three { grid-template-columns: 1fr; }
+  .review-heading, .review-section__head { align-items: stretch; flex-direction: column; }
+  .review-section__actions, .facility-card__actions { justify-content: stretch; }
+  .review-section__actions .button, .facility-card__actions .button, .facility-card__actions .review-save { flex: 1 1 auto; }
+  .review-tray-fab { right: 12px; bottom: 12px; }
+}
+
+@media (max-width: 430px) {
+  .product-flow--two { grid-template-columns: 1fr; }
+  .review-tray-fab strong { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1623,7 +1674,7 @@ select:focus-visible {
 /* CHG-G6-002 VS-C: productization brief and evidence-based manufacturing candidates */
 .manufacturing-page { display: grid; gap: 24px; }
 .productization-stepper { overflow-x: auto; padding: 4px 0; }
-.productization-stepper ol { display: grid; grid-template-columns: repeat(6, minmax(130px, 1fr)); min-width: 820px; margin: 0; padding: 0; list-style: none; }
+.productization-stepper ol { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); min-width: 700px; margin: 0; padding: 0; list-style: none; }
 .productization-stepper li { position: relative; }
 .productization-stepper li:not(:last-child)::after { position: absolute; z-index: 0; top: 18px; right: -50%; width: 100%; height: 2px; background: var(--rule); content: ""; }
 .productization-stepper li > a, .productization-stepper li > span { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; color: var(--ink-2); text-decoration: none; }

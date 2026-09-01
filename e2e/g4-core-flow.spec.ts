@@ -1,6 +1,6 @@
 /**
  * CHG-G6-001-G4-VS-01-CONTEXT-FIX-004 Core Flow E2E
- * 5단계 URL 맥락 보존: 레시피 → 식재료 → 대체 식재료 → 제조시설 → 문의 준비
+ * 제품화 URL 맥락 보존: 레시피 → 대체 식재료 → 제조요건 → 공동제조 후보 → 제조시설 → 문의 준비
  * 규칙: 핵심 구간에서 값이 없을 때 if-return/skip 금지.
  *       데이터가 계약을 충족하지 않으면 명시적으로 실패.
  */
@@ -22,9 +22,9 @@ async function noOverflow(page: Page) {
   expect(overflow, "No horizontal overflow").toBe(false);
 }
 
-// ─── Step 1: Recipe → ingredient with ?recipe= param ────────────────────────
+// ─── Step 1: Recipe → substitute with ingredient+recipe params ─────────────
 
-test("context: recipe detail links ingredient with ?recipe= param", async ({ page }, testInfo) => {
+test("context: recipe detail links directly to substitute with ingredient+recipe params", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
   await page.goto("/recipes");
   await page.waitForLoadState("networkidle");
@@ -40,17 +40,19 @@ test("context: recipe detail links ingredient with ?recipe= param", async ({ pag
   const recipeId = page.url().split("/recipes/")[1]?.split("?")[0];
   expect(recipeId, "Must extract recipeId from URL").toBeTruthy();
 
-  const ingredientLinks = page.locator("a[href^='/ingredients/']");
-  const count = await ingredientLinks.count();
-  expect(count, "Recipe detail must have at least one ingredient link").toBeGreaterThan(0);
+  const substituteLinks = page.locator("a[href^='/substitutes?'][href*='ingredient=']");
+  const count = await substituteLinks.count();
+  expect(count, "Recipe detail must have at least one substitute-search link").toBeGreaterThan(0);
 
-  const ingHref = await ingredientLinks.first().getAttribute("href");
-  expect(ingHref, "Ingredient link must carry ?recipe= param").toContain(`?recipe=${recipeId}`);
+  const substituteHref = await substituteLinks.first().getAttribute("href");
+  const substituteUrl = new URL(substituteHref!, "http://localhost:3000");
+  expect(substituteUrl.searchParams.get("ingredient"), "Substitute link must carry ingredient param").toBeTruthy();
+  expect(substituteUrl.searchParams.get("recipe"), "Substitute link must carry recipe param").toBe(recipeId);
 });
 
-// ─── Step 2: Ingredient → substitute CTA preserves recipe ───────────────────
+// ─── Step 2: Substitute page receives recipe context directly ──────────────
 
-test("context: ingredient substitute CTA preserves recipe param", async ({ page }, testInfo) => {
+test("context: recipe-linked substitute page preserves ingredient and recipe", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
 
   await page.goto("/recipes");
@@ -64,32 +66,26 @@ test("context: ingredient substitute CTA preserves recipe param", async ({ page 
   const recipeId = page.url().split("/recipes/")[1]?.split("?")[0];
   expect(recipeId, "Must extract recipeId").toBeTruthy();
 
-  const ingredientLinks = page.locator("a[href^='/ingredients/']");
-  const count = await ingredientLinks.count();
-  expect(count, "Must have ingredient links in recipe detail").toBeGreaterThan(0);
+  const substituteLinks = page.locator("a[href^='/substitutes?'][href*='ingredient=']");
+  const count = await substituteLinks.count();
+  expect(count, "Must have substitute links in recipe detail").toBeGreaterThan(0);
 
-  const ingHref = await ingredientLinks.first().getAttribute("href");
-  await page.goto(ingHref!);
+  const substituteHref = await substituteLinks.first().getAttribute("href");
+  const substituteUrl = new URL(substituteHref!, "http://localhost:3000");
+  const ingredient = substituteUrl.searchParams.get("ingredient");
+  expect(ingredient, "Must carry an ingredient name").toBeTruthy();
+  await page.goto(substituteHref!);
   await page.waitForLoadState("networkidle");
   await noOverflow(page);
-  await shot(page, "02-ingredient-detail");
+  await shot(page, "02-substitutes-from-recipe");
 
-  // back link to recipe
-  const backLink = page.locator(`a[href^='/recipes/${recipeId}']`);
-  await expect(backLink, "Must have back link to recipe").toBeVisible();
-
-  // substitute CTA must carry both ingredient and recipe
-  const substituteCta = page.locator("a[href^='/substitutes?ingredient=']");
-  await expect(substituteCta, "Must have substitute CTA").toBeVisible();
-
-  const ctaHref = await substituteCta.getAttribute("href");
-  expect(ctaHref, "Substitute CTA must carry ingredient param").toContain("ingredient=");
-  expect(ctaHref, "Substitute CTA must carry recipe param").toContain(`recipe=${encodeURIComponent(recipeId!)}`);
+  await expect(page.locator("input[name='ingredient']")).toHaveValue(ingredient!);
+  await expect(page.locator("input[type='hidden'][name='recipe']")).toHaveValue(recipeId!);
 });
 
 // ─── Step 3: Substitute page receives recipe and shows per-candidate action ──
 
-test("context: substitute candidate card has facility action with ingredient+substitute+recipe", async ({ page }, testInfo) => {
+test("context: substitute candidate card has manufacturing brief action with ingredient+substitute+recipe", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
 
   const testIngredient = "두부";
@@ -103,7 +99,7 @@ test("context: substitute candidate card has facility action with ingredient+sub
   const results = page.locator(".substitute-results");
   await expect(results, "Substitute results section must be visible").toBeVisible();
 
-  // First candidate card must have the per-candidate facility action
+  // First candidate card must lead to the manufacturing brief before facility matching.
   const firstAction = page.locator(".candidate-card__action a").first();
   await expect(firstAction, "First candidate must have facility action link").toBeVisible();
 
@@ -111,7 +107,7 @@ test("context: substitute candidate card has facility action with ingredient+sub
   expect(actionHref, "Facility action must contain ingredient").toContain(`ingredient=${encodeURIComponent(testIngredient)}`);
   expect(actionHref, "Facility action must contain substitute").toContain("substitute=");
   expect(actionHref, "Facility action must contain recipe").toContain(`recipe=${testRecipe}`);
-  expect(actionHref, "Facility action must point to /facilities").toContain("/facilities");
+  expect(actionHref, "Candidate action must point to /manufacturing-brief").toContain("/manufacturing-brief");
 });
 
 // ─── Step 4: Substitute search form preserves recipe on submit ───────────────
@@ -310,31 +306,36 @@ test("context: full context-preserving journey from substitutes to inquiry", asy
   // 2. Get substitute from first candidate action (must exist)
   const firstAction = page.locator(".candidate-card__action a").first();
   await expect(firstAction, "First candidate action must be present").toBeVisible();
-  const facilityHref = await firstAction.getAttribute("href");
-  expect(facilityHref, "Facility href must exist").toBeTruthy();
-  expect(facilityHref, "Facility href must have ingredient").toContain("ingredient=");
-  expect(facilityHref, "Facility href must have substitute").toContain("substitute=");
-  expect(facilityHref, "Facility href must have recipe").toContain(`recipe=${testRecipe}`);
+  const briefHref = await firstAction.getAttribute("href");
+  expect(briefHref, "Manufacturing brief href must exist").toBeTruthy();
+  expect(briefHref, "Manufacturing brief href must have ingredient").toContain("ingredient=");
+  expect(briefHref, "Manufacturing brief href must have substitute").toContain("substitute=");
+  expect(briefHref, "Manufacturing brief href must have recipe").toContain(`recipe=${testRecipe}`);
 
   // Parse substitute from href
-  const facilityUrl = new URL(facilityHref!, "http://localhost:3000");
-  const substitute = facilityUrl.searchParams.get("substitute");
+  const briefUrl = new URL(briefHref!, "http://localhost:3000");
+  const substitute = briefUrl.searchParams.get("substitute");
   expect(substitute, "Substitute param must be non-empty").toBeTruthy();
 
-  // 3. Navigate to facilities page with full context
-  await page.goto(facilityHref!);
+  // 3. Complete the manufacturing brief and navigate to evidence-ranked candidates.
+  await page.goto(briefHref!);
   await page.waitForLoadState("networkidle");
-  expect(page.url()).toContain("/facilities");
+  expect(page.url()).toContain("/manufacturing-brief");
   await noOverflow(page);
-  await shot(page, "12a-journey-facilities");
+  await page.locator('select[name="item"]').selectOption("과자");
+  await page.locator('select[name="region"]').selectOption("경상북도");
+  await page.locator('input[name="ccp"][value="CCP-S01"]').check();
+  await page.getByRole("button", { name: "이 요건으로 제조 후보 확인" }).click();
+  await page.waitForLoadState("networkidle");
+  expect(page.url()).toContain("/manufacturing-candidates");
+  await noOverflow(page);
+  await shot(page, "12a-journey-manufacturing-candidates");
 
-  // Context banner visible
-  await expect(page.locator(".facility-context-note"), "Context note must be visible").toBeVisible();
-
-  // 4. Navigate to first facility detail
-  const firstDetailLink = page.locator("article a[href^='/facilities/']").first();
+  // 4. Navigate to the first evidence-backed facility detail.
+  const firstDetailLink = page.getByRole("link", { name: "업체 제품·HACCP 근거 검증" }).first();
+  await expect(firstDetailLink, "Evidence-backed facility link must exist").toBeVisible();
   const detailHref = await firstDetailLink.getAttribute("href");
-  expect(detailHref, "Detail href must exist").toBeTruthy();
+  expect(detailHref, "Evidence-backed facility href must exist").toBeTruthy();
   await page.goto(detailHref!);
   await page.waitForLoadState("networkidle");
   expect(page.url()).toContain("/facilities/");

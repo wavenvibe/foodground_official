@@ -88,27 +88,24 @@ test("recipes: detail not-found returns 404 page", async ({ page }) => {
   await expect(page.getByRole("heading")).toBeVisible();
 });
 
-// ─── /ingredients ─────────────────────────────────────────────────────────────
+// ─── legacy /ingredients redirect ─────────────────────────────────────────────
 
-test("ingredients: list loads", async ({ page }, testInfo) => {
+test("ingredients: legacy list route redirects to substitutes", async ({ page }, testInfo) => {
   const res = await page.goto("/ingredients");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noOverflow(page);
-  await shot(page, `ingredients-list-${testInfo.project.name}`);
+  await shot(page, `ingredients-redirect-${testInfo.project.name}`);
 });
 
-test("ingredients: detail loads", async ({ page }, testInfo) => {
-  await page.goto("/ingredients");
-  await page.waitForLoadState("networkidle");
-  const firstLink = page.locator("a[href^='/ingredients/']").first();
-  if (!(await firstLink.isVisible().catch(() => false))) { test.skip(); return; }
-  const href = await firstLink.getAttribute("href");
-  const res = await page.goto(href!);
+test("ingredients: legacy detail route redirects to substitutes", async ({ page }, testInfo) => {
+  const res = await page.goto("/ingredients/99999999");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noOverflow(page);
-  await shot(page, `ingredients-detail-${testInfo.project.name}`);
+  await shot(page, `ingredients-detail-redirect-${testInfo.project.name}`);
 });
 
 // ─── /substitutes ─────────────────────────────────────────────────────────────

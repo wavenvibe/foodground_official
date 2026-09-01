@@ -136,6 +136,18 @@ export async function searchPublicRecipes(
       .range(offset, offset + pageSize - 1);
 
     if (error) {
+      if (error.code === "PGRST103") {
+        let countQuery = supabase
+          .from("recipes")
+          .select("recipe_id", { count: "exact", head: true });
+        if (q) countQuery = countQuery.ilike("title", `%${q}%`);
+        if (categoryLarge) countQuery = countQuery.eq("category_large", categoryLarge);
+        if (categoryMid) countQuery = countQuery.eq("category_mid", categoryMid);
+        const { count: total, error: countError } = await countQuery;
+        if (!countError) {
+          return { ok: true, data: [], meta: { page, pageSize, total: total ?? 0 }, traceId };
+        }
+      }
       console.warn("[recipe-search] query failed", {
         traceId,
         providerCode: error.code,

@@ -31,17 +31,21 @@ const QUICK_FILTERS = [
 const FEATURES = [
   { label: "제품", href: "/products", description: "제품·제조업체·HACCP 근거 연결" },
   { label: "레시피", href: "/recipes", description: "70,000+ 식품 레시피 탐색" },
-  { label: "식재료", href: "/ingredients", description: "식재료 성분·특성 검색" },
   { label: "대체 식재료", href: "/substitutes", description: "영양·조리 유사도 기반 대체 추천" },
   { label: "공동제조", href: "/manufacturing-brief", description: "품목·CCP·지역 근거로 후보 비교" },
   { label: "제조시설", href: "/facilities", description: "94,000+ HACCP 인증 업체 검색" },
+  { label: "제품화 검토함", href: "/saved", description: "저장한 레시피·대체재료·제조후보 비교" },
 ] as const;
 
-const PRODUCT_FLOW = [
-  { step: "1", label: "제품 찾기", description: "품목보고 제품과 원재료 확인", href: "/products" },
-  { step: "2", label: "제품화 요건", description: "제품유형·필수 CCP·희망지역 확정", href: "/manufacturing-brief" },
-  { step: "3", label: "제조 후보 비교", description: "충족·미충족·미확인 근거 확인", href: "/manufacturing-brief" },
-  { step: "4", label: "업체 근거 검증", description: "생산제품·HACCP·안전정보 확인", href: "/facilities" },
+const DEVELOPMENT_FLOW = [
+  { step: "1", label: "레시피 찾기", description: "만들 제품의 레시피와 재료 구성을 확인", href: "/recipes" },
+  { step: "2", label: "대체 식재료 찾기", description: "영양·조리 유사도와 성분 변화를 비교", href: "/substitutes" },
+] as const;
+
+const MANUFACTURING_FLOW = [
+  { step: "1", label: "기존 제품명 조회하기", description: "제품명·제조업체명으로 생산 이력을 확인", href: "/products" },
+  { step: "2", label: "조건 맞춤 제조공장 찾기", description: "제품유형·필수 CCP·희망지역으로 후보를 선별", href: "/manufacturing-brief" },
+  { step: "3", label: "제조 후보 비교", description: "검토함에 저장한 시설의 공개 근거를 나란히 비교", href: "/facilities/compare" },
 ] as const;
 
 function formatDate(iso: string): string {
@@ -108,10 +112,21 @@ export default async function HomePage() {
 
         <section className="px-4 py-10" aria-labelledby="product-flow-heading">
           <div className="mx-auto max-w-5xl">
-            <div className="facility-results__head"><div><h2 id="product-flow-heading">제품화 검토 흐름</h2><p>각 메뉴를 따로 보는 것이 아니라 제품을 기준으로 다음 근거가 이어집니다.</p></div></div>
-            <ol className="product-flow" role="list">
-              {PRODUCT_FLOW.map((item) => <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>)}
-            </ol>
+            <div className="facility-results__head"><div><h2 id="product-flow-heading">제품화 검토 흐름</h2><p>제품 아이디어를 다듬고, 실제 생산 이력이 있는 제조시설까지 단계별로 검토합니다.</p></div></div>
+            <div className="product-flow-groups">
+              <section className="product-flow-group" aria-labelledby="development-flow-title">
+                <div><p className="eyebrow">PRODUCT DEVELOPMENT</p><h3 id="development-flow-title">제품 개발하기</h3><p>레시피에서 시작해 필요한 식재료의 대체안을 비교합니다.</p></div>
+                <ol className="product-flow product-flow--two" role="list">
+                  {DEVELOPMENT_FLOW.map((item) => <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>)}
+                </ol>
+              </section>
+              <section className="product-flow-group" aria-labelledby="factory-flow-title">
+                <div><p className="eyebrow">MANUFACTURING PARTNER</p><h3 id="factory-flow-title">적정 제조공장 찾기</h3><p>기존 생산 근거를 찾고, 조건에 맞는 후보를 저장해 비교합니다.</p></div>
+                <ol className="product-flow product-flow--three" role="list">
+                  {MANUFACTURING_FLOW.map((item) => <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>)}
+                </ol>
+              </section>
+            </div>
           </div>
         </section>
 

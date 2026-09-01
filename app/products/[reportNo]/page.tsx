@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StatePanel from "@/components/StatePanel";
+import SaveButton from "@/components/saved/SaveButton";
 import { getSourceProduct } from "@/lib/source-db";
+import { SAVED_KEYS, type SavedProduct } from "@/lib/saved-items";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -39,6 +41,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <h1>{outcome.data.product_name}</h1>
               <p>품목보고번호 {outcome.data.report_no}</p>
               <div className="facility-card__chips">{outcome.data.facility_is_haccp ? <span className="chip chip--success">HACCP 시설 연결</span> : <span className="chip">HACCP 연결정보 없음</span>}{outcome.data.category ? <span className="chip">{outcome.data.category}</span> : null}</div>
+              <SaveButton<SavedProduct>
+                storageKey={SAVED_KEYS.products}
+                itemKey="report_no"
+                item={{ report_no: outcome.data.report_no, product_name: outcome.data.product_name, category: outcome.data.category ?? null, facility_mgt_no: outcome.data.facility_mgt_no ?? "", facility_name: outcome.data.facility_name ?? outcome.data.maker_name ?? "", saved_at: new Date().toISOString() }}
+                label="제품 검토함에 저장"
+                savedLabel="제품 저장됨"
+              />
             </header>
 
             <section className="evidence-section" aria-labelledby="product-facts"><h2 id="product-facts">제품 기본정보</h2><dl className="facility-detail__data">

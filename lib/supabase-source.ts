@@ -163,16 +163,41 @@ export async function searchSourceProductsViaSupabase(
   try {
     const supabase = createPublicServerClient();
     const facilityEmbed = input.haccp ? FACILITY_EMBED_INNER : FACILITY_EMBED;
+    let matchedFacilityIds: string[] = [];
+
+    // Company-name searches must resolve through the facility relation first.
+    // products_public is indexed for product_name full-text search, while the
+    // company label lives on public.facilities.  Looking up the small set of
+    // matching facility keys keeps the 1M-row product query indexed and makes
+    // the UI promise (product / company search) accurate.
+    if (q) {
+      const { data: facilityMatches, error: facilityMatchError } = await supabase
+        .from("facilities")
+        .select("mgt_no")
+        .ilike("name", `%${q}%`)
+        .limit(50);
+      if (facilityMatchError) {
+        console.warn("[supabase-products] facility-name lookup failed", {
+          traceId,
+          providerCode: facilityMatchError.code,
+        });
+        return unavailable(traceId);
+      }
+      matchedFacilityIds = (facilityMatches ?? []).map((row) => row.mgt_no as string);
+    }
+    const countMode: "exact" | "planned" = matchedFacilityIds.length > 0 ? "exact" : "planned";
     // @MX:NOTE: count="planned" uses Postgres EXPLAIN estimate — avoids seq-scan timeout on 1M rows.
     // Exact count with reported_at ORDER caused PG 57014 (~3.9s). report_no is the PK index.
     let query = supabase
       .from("products_public")
-      .select(`${PRODUCT_COLS},${facilityEmbed}`, { count: "planned" });
+      .select(`${PRODUCT_COLS},${facilityEmbed}`, { count: countMode });
 
-    if (q) {
+    if (q && matchedFacilityIds.length > 0) {
+      query = query.in("facility_mgt_no", matchedFacilityIds);
+    } else if (q) {
       // textSearch uses the GIN index on product_name with simple config (plainto_tsquery equivalent).
       // Covers Korean single-word and multi-word queries (e.g. 김치).
-      // Does NOT search category or maker_name on this path; those are filter-only.
+      // Company names are handled by the facility-key lookup above.
       query = query.textSearch("product_name", q, { config: "simple", type: "plain" });
     }
     if (category) query = query.eq("category", category);
@@ -189,7 +214,7 @@ export async function searchSourceProductsViaSupabase(
     }
 
     const items = ((data ?? []) as unknown as SupabaseProductRow[]).map(mapProduct);
-    return { ok: true, data: { items, meta: { page, pageSize, total: count ?? 0, totalIsEstimate: true } }, traceId };
+    return { ok: true, data: { items, meta: { page, pageSize, total: count ?? 0, totalIsEstimate: countMode === "planned" } }, traceId };
   } catch (err) {
     console.warn("[supabase-products] unavailable", { traceId, reason: err instanceof Error ? err.name : "UnknownError" });
     return unavailable(traceId);

@@ -56,7 +56,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {!outcome.ok ? (
               <StatePanel tone="warning" title="제품 원본 데이터 연결이 필요합니다" description={outcome.error.message} traceId={outcome.traceId} />
             ) : outcome.data.items.length === 0 ? (
-              <StatePanel title="검색 결과가 없습니다" description="제품명 검색어를 바꾸거나 카테고리·필터를 초기화해 보세요." actionHref="/products" actionLabel="조건 초기화" />
+              <StatePanel title="검색 결과가 없습니다" description="제품명·제조업체명 검색어를 바꾸거나 카테고리·필터를 초기화해 보세요." actionHref="/products" actionLabel="조건 초기화" />
             ) : (
               <>
                 {facility ? <aside className="data-note product-context-note">제조시설 관리번호 <strong>{facility}</strong>에 직접 연결된 제품만 표시합니다.</aside> : null}

@@ -4,318 +4,92 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useUser } from "@/lib/useUser";
-
-const FACILITIES_KEY = "fg_saved_facilities";
-const PRODUCTS_KEY = "fg_saved_products";
-
-interface SavedFacility {
-  mgt_no: string;
-  name: string;
-  biz_type: string | null;
-  region_sido: string | null;
-  saved_at: string;
-}
-
-interface SavedProduct {
-  report_no: string;
-  product_name: string;
-  category: string | null;
-  facility_mgt_no: string;
-  facility_name: string;
-  saved_at: string;
-}
-
-function loadFacilities(): SavedFacility[] {
-  try {
-    const raw = localStorage.getItem(FACILITIES_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function loadProducts(): SavedProduct[] {
-  try {
-    const raw = localStorage.getItem(PRODUCTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+import {
+  loadSaved,
+  SAVED_KEYS,
+  writeSaved,
+  type SavedFacility,
+  type SavedProduct,
+  type SavedRecipe,
+  type SavedSubstitute,
+} from "@/lib/saved-items";
 
 export default function SavedPage() {
-  const { user, loading: authLoading } = useUser();
   const [mounted, setMounted] = useState(false);
+  const [recipes, setRecipes] = useState<SavedRecipe[]>([]);
+  const [substitutes, setSubstitutes] = useState<SavedSubstitute[]>([]);
   const [facilities, setFacilities] = useState<SavedFacility[]>([]);
   const [products, setProducts] = useState<SavedProduct[]>([]);
 
   useEffect(() => {
+    // Read browser-only persistence after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFacilities(loadFacilities());
-    setProducts(loadProducts());
+    setRecipes(loadSaved(SAVED_KEYS.recipes));
+    setSubstitutes(loadSaved(SAVED_KEYS.substitutes));
+    setFacilities(loadSaved(SAVED_KEYS.facilities));
+    setProducts(loadSaved(SAVED_KEYS.products));
     setMounted(true);
   }, []);
 
-  function handleRemoveFacility(mgtNo: string) {
-    const next = facilities.filter((f) => f.mgt_no !== mgtNo);
-    localStorage.setItem(FACILITIES_KEY, JSON.stringify(next));
+  function removeRecipe(id: string) {
+    const next = recipes.filter((item) => item.recipe_id !== id);
+    writeSaved(SAVED_KEYS.recipes, next);
+    setRecipes(next);
+  }
+
+  function removeSubstitute(id: string) {
+    const next = substitutes.filter((item) => item.standard_food_id !== id);
+    writeSaved(SAVED_KEYS.substitutes, next);
+    setSubstitutes(next);
+  }
+
+  function removeFacility(id: string) {
+    const next = facilities.filter((item) => item.mgt_no !== id);
+    writeSaved(SAVED_KEYS.facilities, next);
     setFacilities(next);
   }
 
-  function handleRemoveProduct(reportNo: string) {
-    const next = products.filter((p) => p.report_no !== reportNo);
-    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(next));
+  function removeProduct(id: string) {
+    const next = products.filter((item) => item.report_no !== id);
+    writeSaved(SAVED_KEYS.products, next);
     setProducts(next);
   }
 
+  const total = recipes.length + substitutes.length + facilities.length + products.length;
+
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="app-shell">
       <Header />
+      <main className="page-container">
+        <header className="page-heading review-heading">
+          <div>
+            <p className="eyebrow">PRODUCT REVIEW BASKET</p>
+            <h1>제품화 검토함</h1>
+            <p>레시피·대체재료·제품·제조시설을 장바구니처럼 모아두고 다음 검토로 이어갑니다.</p>
+          </div>
+          <strong className="review-total">{mounted ? total : 0}개 저장</strong>
+        </header>
+        <aside className="data-note">저장 내용은 로그인이나 서버 전송 없이 현재 브라우저에만 보관됩니다. 브라우저 데이터를 삭제하면 함께 사라집니다.</aside>
 
-      <main className="flex-1">
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-          <h1
-            className="text-2xl font-bold mb-6"
-            style={{ color: "var(--green-900)" }}
-          >
-            관심업체/제품
-          </h1>
-
-          {/* Hint banner — only shown when not logged in */}
-          {!authLoading && !user && (
-            <aside
-              className="rounded-lg p-4 mb-8 text-sm"
-              style={{
-                background: "var(--green-50)",
-                border: "1px solid var(--rule)",
-                color: "var(--ink-2)",
-              }}
-            >
-              로그인하면 다른 기기에서도 관심업체/제품이 유지됩니다. 로그인 없이
-              저장한 목록은 현재 브라우저에만 저장됩니다(localStorage).{" "}
-              <Link
-                href="/signin"
-                className="font-medium underline"
-                style={{ color: "var(--green-700)" }}
-              >
-                로그인하기
-              </Link>
-            </aside>
-          )}
-
-          {/* Saved Facilities Section */}
-          <section className="mb-10" aria-labelledby="facilities-heading">
-            <h2
-              id="facilities-heading"
-              className="text-lg font-bold mb-4"
-              style={{ color: "var(--green-900)" }}
-            >
-              관심업체 ({mounted ? facilities.length : 0})
-            </h2>
-
-            {!mounted ? null : facilities.length === 0 ? (
-              <div
-                className="rounded-lg p-8 text-center"
-                style={{
-                  background: "var(--paper)",
-                  border: "1px solid var(--rule)",
-                }}
-              >
-                <p
-                  className="text-base font-medium mb-3"
-                  style={{ color: "var(--ink)" }}
-                >
-                  저장된 업체가 없습니다.
-                </p>
-                <Link
-                  href="/search"
-                  className="rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
-                  style={{
-                    background: "var(--green-500)",
-                    color: "var(--green-cta-text)",
-                  }}
-                >
-                  업체 검색하기
-                </Link>
-              </div>
-            ) : (
-              <ul className="flex flex-col gap-3" role="list">
-                {facilities.map((item) => (
-                  <li
-                    key={item.mgt_no}
-                    className="rounded-lg p-4"
-                    style={{
-                      background: "var(--paper)",
-                      border: "1px solid var(--rule)",
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold mb-1" style={{ color: "var(--ink)" }}>
-                          <Link
-                            href={`/b/${item.mgt_no}`}
-                            className="hover:underline"
-                            style={{ color: "var(--green-700)" }}
-                          >
-                            {item.name}
-                          </Link>
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          {item.biz_type && (
-                            <span
-                              className="text-xs rounded-full px-2 py-0.5"
-                              style={{
-                                background: "var(--green-100)",
-                                color: "var(--ink)",
-                              }}
-                            >
-                              {item.biz_type}
-                            </span>
-                          )}
-                          {item.region_sido && (
-                            <span
-                              className="text-xs"
-                              style={{ color: "var(--ink-2)" }}
-                            >
-                              {item.region_sido}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs" style={{ color: "var(--ink-2)" }}>
-                          저장일: {item.saved_at.slice(0, 10)}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFacility(item.mgt_no)}
-                        className="flex-shrink-0 rounded-lg px-3 py-1.5 text-sm transition-opacity hover:opacity-80"
-                        style={{
-                          background: "var(--paper)",
-                          color: "var(--warn)",
-                          border: "1px solid var(--rule)",
-                        }}
-                        aria-label={`${item.name} 저장 목록에서 제거`}
-                      >
-                        제거
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+        <div className="review-sections">
+          <section className="review-section" aria-labelledby="saved-recipes">
+            <div className="review-section__head"><div><h2 id="saved-recipes">레시피</h2><p>제품 아이디어와 재료 구성을 다시 확인합니다.</p></div><Link className="button button--secondary" href="/recipes">레시피 찾기</Link></div>
+            {!mounted ? null : recipes.length === 0 ? <p className="review-empty">저장한 레시피가 없습니다.</p> : <ul className="review-list">{recipes.map((item) => <li key={item.recipe_id}><div><Link href={`/recipes/${encodeURIComponent(item.recipe_id)}`}><strong>{item.title}</strong></Link><small>{item.category || "분류 정보 없음"}</small></div><button type="button" onClick={() => removeRecipe(item.recipe_id)}>제거</button></li>)}</ul>}
           </section>
 
-          {/* Saved Products Section */}
-          <section aria-labelledby="products-heading">
-            <h2
-              id="products-heading"
-              className="text-lg font-bold mb-4"
-              style={{ color: "var(--green-900)" }}
-            >
-              관심제품 ({mounted ? products.length : 0})
-            </h2>
-
-            {!mounted ? null : products.length === 0 ? (
-              <div
-                className="rounded-lg p-8 text-center"
-                style={{
-                  background: "var(--paper)",
-                  border: "1px solid var(--rule)",
-                }}
-              >
-                <p
-                  className="text-base font-medium mb-3"
-                  style={{ color: "var(--ink)" }}
-                >
-                  저장된 제품이 없습니다.
-                </p>
-                <Link
-                  href="/products"
-                  className="rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
-                  style={{
-                    background: "var(--green-500)",
-                    color: "var(--green-cta-text)",
-                  }}
-                >
-                  제품 검색하기
-                </Link>
-              </div>
-            ) : (
-              <ul className="flex flex-col gap-3" role="list">
-                {products.map((item) => (
-                  <li
-                    key={item.report_no}
-                    className="rounded-lg p-4"
-                    style={{
-                      background: "var(--paper)",
-                      border: "1px solid var(--rule)",
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="font-semibold mb-1"
-                          style={{ color: "var(--ink)" }}
-                        >
-                          {item.product_name}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          {item.category && (
-                            <span
-                              className="text-xs rounded-full px-2 py-0.5"
-                              style={{
-                                background: "var(--green-100)",
-                                color: "var(--ink)",
-                              }}
-                            >
-                              {item.category}
-                            </span>
-                          )}
-                          <span
-                            className="text-xs"
-                            style={{ color: "var(--ink-2)" }}
-                          >
-                            업체:{" "}
-                            <Link
-                              href={`/b/${item.facility_mgt_no}`}
-                              className="hover:underline"
-                              style={{ color: "var(--green-700)" }}
-                            >
-                              {item.facility_name}
-                            </Link>
-                          </span>
-                        </div>
-                        <p className="text-xs" style={{ color: "var(--ink-2)" }}>
-                          저장일: {item.saved_at.slice(0, 10)}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveProduct(item.report_no)}
-                        className="flex-shrink-0 rounded-lg px-3 py-1.5 text-sm transition-opacity hover:opacity-80"
-                        style={{
-                          background: "var(--paper)",
-                          color: "var(--warn)",
-                          border: "1px solid var(--rule)",
-                        }}
-                        aria-label={`${item.product_name} 저장 목록에서 제거`}
-                      >
-                        제거
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <section className="review-section" aria-labelledby="saved-substitutes">
+            <div className="review-section__head"><div><h2 id="saved-substitutes">대체 식재료</h2><p>어떤 원재료 대신 검토했는지 함께 보관합니다.</p></div><Link className="button button--secondary" href="/substitutes">대체재료 찾기</Link></div>
+            {!mounted ? null : substitutes.length === 0 ? <p className="review-empty">저장한 대체 식재료가 없습니다.</p> : <ul className="review-list">{substitutes.map((item) => <li key={item.standard_food_id}><div><Link href={`/substitutes?ingredient=${encodeURIComponent(item.source_ingredient)}`}><strong>{item.name}</strong></Link><small>{item.source_ingredient} 대체 · {item.score_final == null ? "점수 없음" : `${Math.round(item.score_final * 100)}점`}</small></div><button type="button" onClick={() => removeSubstitute(item.standard_food_id)}>제거</button></li>)}</ul>}
           </section>
+
+          <section className="review-section review-section--factory" aria-labelledby="saved-facilities">
+            <div className="review-section__head"><div><h2 id="saved-facilities">제조 후보</h2><p>조건 검색에서 저장한 시설을 근거별로 비교합니다.</p></div><div className="review-section__actions"><Link className="button button--secondary" href="/facilities">후보 더 찾기</Link><Link className="button button--point" href="/facilities/compare">저장 후보 비교</Link></div></div>
+            {!mounted ? null : facilities.length === 0 ? <p className="review-empty">저장한 제조시설이 없습니다. 시설 검색 결과에서 ‘검토함에 저장’을 눌러보세요.</p> : <ul className="review-list">{facilities.map((item) => <li key={item.mgt_no}><div><Link href={`/facilities/${encodeURIComponent(item.mgt_no)}`}><strong>{item.name}</strong></Link><small>{[item.region_sido, item.region_sigungu].filter(Boolean).join(" ") || "지역 정보 없음"} · {item.is_haccp ? "HACCP 인증" : "HACCP 연결정보 없음"}</small></div><button type="button" onClick={() => removeFacility(item.mgt_no)}>제거</button></li>)}</ul>}
+          </section>
+
+          {products.length > 0 ? <section className="review-section" aria-labelledby="saved-products"><div className="review-section__head"><div><h2 id="saved-products">기존 제품</h2><p>생산 이력과 제조업체 연결 근거를 확인합니다.</p></div><Link className="button button--secondary" href="/products">제품 찾기</Link></div><ul className="review-list">{products.map((item) => <li key={item.report_no}><div><Link href={`/products/${encodeURIComponent(item.report_no)}`}><strong>{item.product_name}</strong></Link><small>{item.facility_name || "제조업체 연결정보 없음"}</small></div><button type="button" onClick={() => removeProduct(item.report_no)}>제거</button></li>)}</ul></section> : null}
         </div>
       </main>
-
       <Footer />
     </div>
   );

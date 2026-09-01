@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { SubstituteCandidate, StandardFood } from "@/lib/substitutes";
 import SimilarityBar from "./SimilarityBar";
 import NutritionTable from "./NutritionTable";
+import SaveButton from "@/components/saved/SaveButton";
 import { productizationHref, type ProductizationSourceType } from "@/lib/productization-context";
+import { SAVED_KEYS, type SavedSubstitute } from "@/lib/saved-items";
 
 const SIM_LABELS: Record<string, string> = {
   sim_nutrition: "영양 성분",
@@ -109,6 +111,20 @@ export default function SubstituteCandidateList({
             )}
 
             <div className="candidate-card__action">
+              <SaveButton<SavedSubstitute>
+                storageKey={SAVED_KEYS.substitutes}
+                itemKey="standard_food_id"
+                item={{
+                  standard_food_id: food.standard_food_id,
+                  name: food.name,
+                  food_group: food.food_group ?? null,
+                  source_ingredient: ingredient,
+                  score_final: c.score_final,
+                  saved_at: new Date().toISOString(),
+                }}
+                label="대체 후보 저장"
+                savedLabel="대체 후보 저장됨"
+              />
               <Link href={briefHref} className="button button--point">
                 이 후보로 제품화 요건 확인
               </Link>

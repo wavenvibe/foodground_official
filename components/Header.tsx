@@ -9,10 +9,10 @@ import { useState } from "react";
 const NAV_LINKS = [
   { href: "/products", label: "제품" },
   { href: "/recipes", label: "레시피" },
-  { href: "/ingredients", label: "식재료" },
   { href: "/substitutes", label: "대체 식재료" },
   { href: "/manufacturing-brief", label: "공동제조" },
   { href: "/facilities", label: "제조시설" },
+  { href: "/saved", label: "검토함" },
 ] as const;
 
 export default function Header() {
