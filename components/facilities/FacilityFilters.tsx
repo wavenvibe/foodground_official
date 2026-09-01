@@ -86,10 +86,10 @@ export default function FacilityFilters(props: FacilityFiltersProps) {
           </select>
         </label>
         <label>
-          <span>HACCP</span>
+          <span>스마트 HACCP</span>
           <select name="haccp" defaultValue={props.haccp ? "1" : ""}>
             <option value="">전체</option>
-            <option value="1">인증 시설만</option>
+            <option value="1">등록 시설만</option>
           </select>
         </label>
         <label>

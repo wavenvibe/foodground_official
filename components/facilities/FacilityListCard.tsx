@@ -35,7 +35,7 @@ export default function FacilityListCard({
           </Link>
         </h2>
         <div className="facility-card__chips">
-          {facility.is_haccp ? <span className="chip chip--success">HACCP 인증</span> : null}
+          {facility.is_haccp ? <span className="chip chip--success">스마트 HACCP 등록</span> : null}
           {facility.business_type ? <span className="chip">{facility.business_type}</span> : null}
           {region ? <span className="chip">{region}</span> : null}
         </div>

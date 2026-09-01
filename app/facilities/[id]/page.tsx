@@ -65,7 +65,7 @@ function buildFilterConditions(
 
   if (bp.get("haccp") === "1") {
     const status: MatchStatus = facility.is_haccp ? "일치" : "미충족";
-    conditions.push({ label: "HACCP", filterValue: "인증", facilityValue: facility.is_haccp ? "인증" : "미인증", status });
+    conditions.push({ label: "스마트 HACCP", filterValue: "등록", facilityValue: facility.is_haccp ? "등록" : "연결정보 없음", status });
   }
 
   const filterStatus = bp.get("status");
@@ -214,7 +214,7 @@ export default async function FacilityDetailPage({
                   {recipe && <>{" "}참고 레시피 #{recipe}.</>}
                 </p>
                 <p className="facility-context-note__disclaimer">
-                  이 정보는 문의 맥락으로 전달된 참고 정보입니다. 시설 HACCP 인증은 시설 수준이며 제품·공정 적합 여부는 직접 문의하세요.
+                  이 정보는 문의 맥락으로 전달된 참고 정보입니다. 스마트 HACCP 등록정보는 시설 수준이며 제품·공정 적용 여부는 직접 문의하세요.
                 </p>
               </aside>
             )}
@@ -230,7 +230,7 @@ export default async function FacilityDetailPage({
                 <p className="eyebrow">PRODUCTIZATION CONTEXT</p>
                 <h2>{sp.candidate || facility.name} 후보 근거 검증</h2>
                 <dl><div><dt>시작점</dt><dd>{sourceName ? `${sourceType === "recipe" ? "레시피" : "제품"} · ${sourceName}` : "직접 브리프"}{sourceId ? ` · ${sourceId}` : ""}</dd></div><div><dt>제품유형</dt><dd>{manufacturingItem}</dd></div><div><dt>희망지역</dt><dd>{manufacturingRegion || "전국"}</dd></div><div><dt>필수 CCP</dt><dd>{manufacturingCcp.join(", ") || "지정 없음"}</dd></div><div><dt>공정 묶음</dt><dd>{manufacturingProcess.join(", ") || "지정 없음"}</dd></div></dl>
-                <p className="facility-context-note__disclaimer">아래 생산제품·HACCP·CCP·안전정보를 직접 검증한 뒤, 미확인 조건만 업체에 문의하세요.</p>
+                <p className="facility-context-note__disclaimer">아래 생산제품·스마트 HACCP·CCP·안전정보를 직접 검증한 뒤, 미확인 조건만 업체에 문의하세요.</p>
               </aside>
             ) : null}
 
@@ -266,7 +266,7 @@ export default async function FacilityDetailPage({
                 <p className="eyebrow">FACILITY</p>
                 <h1>{facility.name}</h1>
                 <div className="facility-card__chips">
-                  {facility.is_haccp ? <span className="chip chip--success">HACCP 인증</span> : null}
+                  {facility.is_haccp ? <span className="chip chip--success">스마트 HACCP 등록</span> : null}
                   {facility.business_type ? <span className="chip">{facility.business_type}</span> : null}
                   <span className="chip">{facility.status}</span>
                 </div>
@@ -323,13 +323,13 @@ export default async function FacilityDetailPage({
 
               {evidenceOutcome.ok && evidenceOutcome.data ? (
                 <>
-                  <section className="evidence-section" aria-labelledby="facility-haccp"><div className="evidence-section__head"><h2 id="facility-haccp">HACCP 인증·CCP 정보</h2><span>{evidenceOutcome.data.haccp.length}건</span></div>
-                    {evidenceOutcome.data.haccp.length ? <div className="evidence-grid">{evidenceOutcome.data.haccp.map((cert, index) => <article className="evidence-card" key={`${cert.cert_no ?? "cert"}-${index}`}><h3>{cert.cert_no || "인증번호 정보 없음"}</h3><p>인증일 {cert.cert_date?.slice(0, 10) || "-"}</p><p className="evidence-card__body">{formatCcp(cert.ccp_list)}</p></article>)}</div> : <StatePanel title="연결된 인증 원본이 없습니다" description="시설의 HACCP 표시와 인증서·CCP 원본 연결은 별도로 확인해야 합니다." />}
+                  <section className="evidence-section" aria-labelledby="facility-haccp"><div className="evidence-section__head"><h2 id="facility-haccp">스마트 HACCP 등록·CCP 정보</h2><span>{evidenceOutcome.data.haccp.length}건</span></div>
+                    {evidenceOutcome.data.haccp.length ? <div className="evidence-grid">{evidenceOutcome.data.haccp.map((cert, index) => <article className="evidence-card" key={`${cert.cert_no ?? "cert"}-${index}`}><h3>{cert.cert_no || "등록번호 정보 없음"}</h3><p>등록일 {cert.cert_date?.slice(0, 10) || "-"}</p><p className="evidence-card__body">{formatCcp(cert.ccp_list)}</p></article>)}</div> : <StatePanel title="연결된 스마트 HACCP 원본이 없습니다" description="시설의 스마트 HACCP 등록 표시와 등록·CCP 원본 연결은 별도로 확인해야 합니다." />}
                   </section>
                   <section className="evidence-section" aria-labelledby="facility-safety"><div className="evidence-section__head"><h2 id="facility-safety">업체 직접 연결 안전정보</h2><span>{evidenceOutcome.data.safety.length}건</span></div>
                     {evidenceOutcome.data.safety.length ? <div className="evidence-grid">{evidenceOutcome.data.safety.map((item, index) => <article className="evidence-card evidence-card--warning" key={`${item.product_code ?? item.product_name ?? "safety"}-${index}`}><h3>{item.product_name || "제품명 정보 없음"}</h3><p>{item.reason || "사유 정보 없음"}</p><p className="evidence-card__body">{item.method || "조치정보 없음"} · {item.published_at?.slice(0, 10) || "공개일 없음"}</p></article>)}</div> : <StatePanel title="직접 연결된 안전정보 없음" description="안전 판정이 아니라 이 시설 관리번호에 직접 연결된 공개 안전정보가 없다는 뜻입니다." />}
                   </section>
-                  <aside className="data-note">HACCP은 시설 수준 인증이며 특정 제품·모든 공정의 자동 적합 판정이 아닙니다. 안전정보도 관리번호로 직접 연결된 원본만 표시합니다.</aside>
+                  <aside className="data-note">스마트 HACCP은 HACCP 인증업체 가운데 시스템 등록이 확인된 시설 수준 정보이며, 특정 제품·모든 공정의 자동 적합 판정이 아닙니다. 안전정보도 관리번호로 직접 연결된 원본만 표시합니다.</aside>
                 </>
               ) : null}
 

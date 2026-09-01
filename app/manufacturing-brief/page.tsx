@@ -32,7 +32,7 @@ export default async function ManufacturingBriefPage({ searchParams }: { searchP
       <header className="manufacturing-hero"><p className="eyebrow">PRODUCTIZATION BRIEF</p><h1>어떤 제품을, 어떤 공정으로 만들까요?</h1><p>제품유형과 필요한 공정을 확정하면 실제 시설키가 연결된 제조 프로필만 근거별로 비교합니다.</p></header>
       <ProductizationContextPanel context={source} />
       <ManufacturingBriefForm options={options} source={source} />
-      <aside className="data-note">후보는 시설을 자동 선정하거나 제조 가능성을 보증하지 않습니다. 표시된 품목·CCP·지역·HACCP 근거를 확인한 뒤 설비용량·MOQ·납기·제품별 인증 적용범위는 업체에 추가 확인해야 합니다.</aside>
+      <aside className="data-note">후보는 시설을 자동 선정하거나 제조 가능성을 보증하지 않습니다. 표시된 품목·CCP·지역·스마트 HACCP 근거를 확인한 뒤 설비용량·MOQ·납기·제품별 등록 적용범위는 업체에 추가 확인해야 합니다.</aside>
     </main><Footer /></div>
   );
 }

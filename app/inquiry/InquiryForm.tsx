@@ -27,7 +27,7 @@ function buildTemplate(props: InquiryFormProps): string {
   if (process) lines.push(`■ 필수 공정·CCP: ${process}`);
   lines.push("■ 희망 수량: ");
   lines.push("■ 희망 일정: ");
-  lines.push("■ HACCP 필요 여부: ");
+  lines.push("■ 스마트 HACCP 등록 필요 여부: ");
   lines.push("■ 기타 요청사항: ");
   return lines.join("\n").trim();
 }

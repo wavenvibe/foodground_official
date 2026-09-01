@@ -9,7 +9,7 @@ const EVIDENCE_DIR = path.join(process.cwd(), "output", "playwright", "chg-g6-00
 
 test.beforeAll(() => fs.mkdirSync(EVIDENCE_DIR, { recursive: true }));
 
-test("actual-source APIs preserve direct product, facility, HACCP and safety linkage", async ({ request }) => {
+test("actual-source APIs preserve direct product, facility, Smart HACCP and safety linkage", async ({ request }) => {
   const products = await request.get(`${BASE}/api/products?q=${encodeURIComponent("버터그린밀")}`);
   expect(products.status()).toBe(200);
   const productsJson = await products.json();
@@ -50,7 +50,7 @@ for (const viewport of [
 
     await page.goto(`${BASE}/products?q=${encodeURIComponent("버터그린밀")}`, { waitUntil: "networkidle" });
     await expect(page.getByText("버터그린밀", { exact: true })).toBeVisible();
-    await expect(page.getByText("HACCP 시설", { exact: true })).toBeVisible();
+    await expect(page.getByText("스마트 HACCP 등록 시설", { exact: true })).toBeVisible();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${viewport.name}-product-search.png`), fullPage: true });
 
     await page.goto(`${BASE}/products/${PRODUCT_ID}`, { waitUntil: "networkidle" });
@@ -62,7 +62,7 @@ for (const viewport of [
     await page.goto(`${BASE}/facilities/${FACILITY_ID}?product=${PRODUCT_ID}`, { waitUntil: "networkidle" });
     await expect(page.getByRole("heading", { name: "주식회사소울네이처푸드" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "이 업체의 생산제품" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "HACCP 인증·CCP 정보" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "스마트 HACCP 등록·CCP 정보" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "업체 직접 연결 안전정보" })).toBeVisible();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${viewport.name}-facility-evidence.png`), fullPage: true });
 

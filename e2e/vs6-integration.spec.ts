@@ -298,7 +298,7 @@ test("facilities: filter context panel (FG-FUN-034) shows on detail from filtere
   const panel = page.locator(".facility-detail__filter-context");
   await expect(panel).toBeVisible();
   await expect(panel).toContainText("경기도");
-  await expect(panel).toContainText("HACCP");
+  await expect(panel).toContainText("스마트 HACCP");
   await expect(page.locator(".filter-condition__status").first()).toBeVisible();
   await noOverflow(page);
   await shot(page, `facilities-filter-context-${testInfo.project.name}`);

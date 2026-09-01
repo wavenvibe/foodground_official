@@ -347,7 +347,7 @@ export async function matchManufacturingCandidates(
       const facility = facilityOutcome.data[profile.facilityMgtNo] ?? null;
       const evidence: ManufacturingEvidence[] = [];
       addEvidence(evidence, "item", "제품유형", item, profile.items.join(", "), true);
-      addEvidence(evidence, "facility", "시설·HACCP 직접 연결", "직접 연결", facility ? `${facility.name} · ${profile.matchBasis}` : null, facility ? true : null);
+      addEvidence(evidence, "facility", "시설·스마트 HACCP 직접 연결", "직접 연결", facility ? `${facility.name} · ${profile.matchBasis}` : null, facility ? true : null);
       if (region) {
         const actualRegion = canonicalRegion(facility?.region_sido) ?? profile.region;
         addEvidence(evidence, "region", "희망지역", region, actualRegion, actualRegion ? actualRegion === region : null);

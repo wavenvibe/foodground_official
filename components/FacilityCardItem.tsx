@@ -42,7 +42,7 @@ export default function FacilityCardItem({
 
         {/* Badges row */}
         <div className="flex flex-wrap gap-2 mb-2">
-          {/* HACCP badge */}
+          {/* Smart HACCP registration badge */}
           {is_haccp === 1 ? (
             <span
               className="rounded-full px-2 py-0.5 text-xs font-medium"
@@ -51,7 +51,7 @@ export default function FacilityCardItem({
                 color: "var(--green-cta-text)",
               }}
             >
-              HACCP 인증
+              스마트 HACCP 등록
             </span>
           ) : (
             <span
@@ -61,7 +61,7 @@ export default function FacilityCardItem({
                 color: "var(--ink-2)",
               }}
             >
-              HACCP 미인증
+              스마트 HACCP 연결정보 없음
             </span>
           )}
 

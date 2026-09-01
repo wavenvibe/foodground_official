@@ -17,7 +17,7 @@ export default function ProductFilters({ currentCategory, categories, currentHac
     <aside className="product-filters" aria-label="제품 필터" aria-busy={isPending}>
       <h2>제품 필터</h2>
       <label><span>식품 유형</span><select value={currentCategory} onChange={(event) => update("category", event.target.value)} disabled={isPending}><option value="">전체</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
-      <label className="product-filters__check"><input type="checkbox" checked={currentHaccp} onChange={(event) => update("haccp", event.target.checked ? "1" : "")} disabled={isPending} /><span>HACCP 시설 생산제품만</span></label>
+      <label className="product-filters__check"><input type="checkbox" checked={currentHaccp} onChange={(event) => update("haccp", event.target.checked ? "1" : "")} disabled={isPending} /><span>스마트 HACCP 등록 시설 생산제품만</span></label>
       <button className="button button--secondary" type="button" onClick={() => router.push("/products")}>필터 초기화</button>
     </aside>
   );

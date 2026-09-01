@@ -89,7 +89,7 @@ export default async function FacilitiesPage({ searchParams }: FacilitiesPagePro
                 : <>식재료 <strong>{ingredient}</strong> 관련 시설을 확인하고 있습니다.</>}
             </p>
             <p className="facility-context-note__disclaimer">
-              지역·업종·HACCP 인증은 시설 수준 공개 정보입니다. 제품·공정 적합 여부는 해당 시설에 직접 문의해 확인하세요.
+              지역·업종·스마트 HACCP 등록정보는 시설 수준 공개 정보입니다. 제품·공정 적용 여부는 해당 시설에 직접 문의해 확인하세요.
             </p>
           </aside>
         )}

@@ -57,7 +57,7 @@ test("recipe ingredient substitute manufacturing facility inquiry keeps one visi
   await expect(page.getByText("전체 요건 충족").locator("..").getByText("5", { exact: true })).toBeVisible();
   await assertPage("candidates");
   await page.screenshot({ path: path.join(EVIDENCE_DIR, `${testInfo.project.name}-manufacturing-context.png`), fullPage: true });
-  await page.getByRole("link", { name: "업체 제품·HACCP 근거 검증" }).first().click();
+  await page.getByRole("link", { name: "업체 제품·스마트 HACCP 근거 검증" }).first().click();
   await page.waitForLoadState("networkidle");
 
   await expect(page.getByRole("heading", { name: /후보 근거 검증/ })).toBeVisible();

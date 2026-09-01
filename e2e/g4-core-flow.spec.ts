@@ -332,7 +332,7 @@ test("context: full context-preserving journey from substitutes to inquiry", asy
   await shot(page, "12a-journey-manufacturing-candidates");
 
   // 4. Navigate to the first evidence-backed facility detail.
-  const firstDetailLink = page.getByRole("link", { name: "업체 제품·HACCP 근거 검증" }).first();
+  const firstDetailLink = page.getByRole("link", { name: "업체 제품·스마트 HACCP 근거 검증" }).first();
   await expect(firstDetailLink, "Evidence-backed facility link must exist").toBeVisible();
   const detailHref = await firstDetailLink.getAttribute("href");
   expect(detailHref, "Evidence-backed facility href must exist").toBeTruthy();
@@ -413,7 +413,7 @@ test("context: facility detail shows selected context panel", async ({ page }, t
   const panelText = await contextPanel.textContent();
   // Must reference substitute and disclaimer
   expect(panelText, "Panel must mention inquiry purpose").toMatch(/문의|맥락/);
-  expect(panelText, "Panel must have HACCP/process disclaimer").toContain("직접 문의");
+  expect(panelText, "Panel must have Smart HACCP/process disclaimer").toContain("직접 문의");
   await shot(page, "14-facility-detail-context");
 });
 

@@ -32,7 +32,7 @@ export default function FacilityComparePage() {
         <header className="page-heading">
           <p className="eyebrow">FACILITY COMPARISON</p>
           <h1>저장한 제조 후보 비교</h1>
-          <p>검토함에 저장한 제조시설의 공개 조건을 한눈에 비교하고, 각 업체의 생산제품·HACCP·안전정보 근거로 이동합니다.</p>
+          <p>검토함에 저장한 제조시설의 공개 조건을 한눈에 비교하고, 각 업체의 생산제품·스마트 HACCP·안전정보 근거로 이동합니다.</p>
         </header>
 
         {!mounted ? null : compared.length < 2 ? (
@@ -52,12 +52,12 @@ export default function FacilityComparePage() {
                   <tr><th scope="row">지역</th>{compared.map((item) => <td key={item.mgt_no}>{valueOrUnknown([item.region_sido, item.region_sigungu].filter(Boolean).join(" "))}</td>)}</tr>
                   <tr><th scope="row">업종</th>{compared.map((item) => <td key={item.mgt_no}>{valueOrUnknown(item.biz_type)}</td>)}</tr>
                   <tr><th scope="row">영업 상태</th>{compared.map((item) => <td key={item.mgt_no}>{valueOrUnknown(item.status)}</td>)}</tr>
-                  <tr><th scope="row">HACCP 시설</th>{compared.map((item) => <td key={item.mgt_no}>{item.is_haccp ? <span className="chip chip--success">인증</span> : <span className="chip">연결정보 없음</span>}</td>)}</tr>
+                  <tr><th scope="row">스마트 HACCP 등록</th>{compared.map((item) => <td key={item.mgt_no}>{item.is_haccp ? <span className="chip chip--success">등록</span> : <span className="chip">연결정보 없음</span>}</td>)}</tr>
                   <tr><th scope="row">원본 근거</th>{compared.map((item) => <td key={item.mgt_no}><Link className="button button--secondary" href={`/facilities/${encodeURIComponent(item.mgt_no)}`}>업체 근거 보기</Link></td>)}</tr>
                 </tbody>
               </table>
             </div>
-            <aside className="data-note">이 표는 공개 시설 수준 정보의 비교입니다. 특정 제품 생산 가능 여부와 공정 적합성은 각 업체 근거 화면의 제품·HACCP·CCP 정보를 검토하고 업체에 직접 확인해야 합니다.</aside>
+            <aside className="data-note">이 표는 공개 시설 수준 정보의 비교입니다. 특정 제품 생산 가능 여부와 공정 적합성은 각 업체 근거 화면의 제품·스마트 HACCP·CCP 정보를 검토하고 업체에 직접 확인해야 합니다.</aside>
           </>
         )}
       </main>

@@ -43,7 +43,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <header className="page-heading">
           <p className="eyebrow">PRODUCT EVIDENCE</p>
           <h1>제품·제조업체 연결 검색</h1>
-          <p>식품 제품을 찾고 실제 제조업체, HACCP 인증·CCP, 직접 연결된 안전정보까지 확인합니다.</p>
+          <p>식품 제품을 찾고 실제 제조업체, 스마트 HACCP 등록·CCP, 직접 연결된 안전정보까지 확인합니다.</p>
         </header>
         <ProductSearchForm defaultValue={q} />
         <div className="product-discovery-layout">
@@ -65,7 +65,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <article className="product-evidence-card" key={product.report_no}>
                       <div className="product-evidence-card__head">
                         <div><p className="product-evidence-card__id">품목보고번호 {product.report_no}</p><h2><Link href={`/products/${encodeURIComponent(product.report_no)}`}>{product.product_name}</Link></h2></div>
-                        <div className="facility-card__chips">{product.facility_is_haccp ? <span className="chip chip--success">HACCP 시설</span> : null}{product.category ? <span className="chip">{product.category}</span> : null}</div>
+                        <div className="facility-card__chips">{product.facility_is_haccp ? <span className="chip chip--success">스마트 HACCP 등록 시설</span> : null}{product.category ? <span className="chip">{product.category}</span> : null}</div>
                       </div>
                       <dl className="product-evidence-card__facts">
                         <div><dt>제조업체</dt><dd>{product.facility_mgt_no && product.facility_name ? <Link href={`/facilities/${encodeURIComponent(product.facility_mgt_no)}`}>{product.facility_name}</Link> : product.maker_name || "연결 정보 없음"}</dd></div>

@@ -189,7 +189,7 @@ export default async function InquiryPage({ searchParams }: InquiryPageProps) {
 
         <aside className="data-note" style={{ marginTop: "1.5rem" }}>
           문의 내용은 브라우저에서만 작성되며 저장·전송되지 않습니다.
-          제품·공정 HACCP 적합 여부는 시설에 직접 확인해 주세요.
+          제품·공정별 스마트 HACCP 적용 여부는 시설에 직접 확인해 주세요.
         </aside>
       </main>
       <Footer />

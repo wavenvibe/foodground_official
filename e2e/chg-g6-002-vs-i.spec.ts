@@ -99,13 +99,13 @@ test("VS-I-004A facility product totals are exact and consistent", async ({ requ
 });
 
 // ---------------------------------------------------------------------------
-// VS-I-005: HACCP filter — all returned items must have facility_is_haccp=true
+// VS-I-005: Smart HACCP filter — all returned items must have facility_is_haccp=true
 // ---------------------------------------------------------------------------
-test("VS-I-005 GET /api/products?haccp=1 returns only HACCP-certified products", async ({ request }) => {
+test("VS-I-005 GET /api/products?haccp=1 returns only Smart-HACCP-linked products", async ({ request }) => {
   const res = await request.get(`${BASE}/api/products?haccp=1&pageSize=10`);
   expect(res.status()).toBe(200);
   const items = (await res.json()).data as ProductItem[];
-  expect(items.length, "Expected at least one HACCP product").toBeGreaterThan(0);
+  expect(items.length, "Expected at least one Smart-HACCP-linked product").toBeGreaterThan(0);
   for (const item of items) {
     expect(item.facility_is_haccp, `product ${item.report_no} must have facility_is_haccp=true`).toBe(true);
   }

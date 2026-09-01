@@ -24,16 +24,16 @@ const POPULAR_CATEGORIES = [
 ] as const;
 
 const QUICK_FILTERS = [
-  { label: "HACCP ✓", href: "/facilities?haccp=1" },
+  { label: "스마트 HACCP ✓", href: "/facilities?haccp=1" },
   { label: "제조시설 전체", href: "/facilities" },
 ] as const;
 
 const FEATURES = [
-  { label: "제품", href: "/products", description: "제품·제조업체·HACCP 근거 연결" },
+  { label: "제품", href: "/products", description: "제품·제조업체·스마트 HACCP 근거 연결" },
   { label: "레시피", href: "/recipes", description: "70,000+ 식품 레시피 탐색" },
   { label: "대체 식재료", href: "/substitutes", description: "영양·조리 유사도 기반 대체 추천" },
   { label: "공동제조", href: "/manufacturing-brief", description: "품목·CCP·지역 근거로 후보 비교" },
-  { label: "제조시설", href: "/facilities", description: "94,000+ HACCP 인증 업체 검색" },
+  { label: "제조시설", href: "/facilities", description: "94,000+ 제조시설과 스마트 HACCP 등록정보 검색" },
   { label: "제품화 검토함", href: "/saved", description: "저장한 레시피·대체재료·제조후보 비교" },
 ] as const;
 
@@ -73,7 +73,7 @@ export default async function HomePage() {
               className="text-3xl sm:text-4xl font-bold leading-tight mb-4"
               style={{ color: "var(--green-900)" }}
             >
-              제품에서 제조업체·HACCP 근거까지
+              제품에서 제조업체·스마트 HACCP 근거까지
             </h1>
             <p
               className="text-lg mb-8"
@@ -230,7 +230,7 @@ export default async function HomePage() {
             >
               데이터 최종 동기화 · 등록정보{" "}
               <strong>{formatDate(syncStatus.facility_at)}</strong> · 생산이력{" "}
-              <strong>{formatDate(syncStatus.production_at)}</strong> · HACCP{" "}
+              <strong>{formatDate(syncStatus.production_at)}</strong> · 스마트 HACCP{" "}
               <strong>{formatDate(syncStatus.haccp_at)}</strong> · 판매중지{" "}
               <strong>{formatDate(syncStatus.suspension_at)}</strong>
             </p>

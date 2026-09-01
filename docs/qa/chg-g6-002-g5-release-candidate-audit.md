@@ -394,3 +394,65 @@ Playwright 보강 스펙은 잘못된 `q=` 쿼리를 실제 계약인 `ingredien
 판정: **PRECOMMIT_AUDIT_PASS_WITH_EXCLUSIONS / LOCAL_ONLY / PUSH_APPROVAL_REQUIRED.**
 
 다음 외부 작업은 감사 후보만 별도 커밋한 뒤 기존 Preview 브랜치에 push하여 PR과 Vercel Preview를 갱신하는 것이다. 이 작업은 원격 상태를 바꾸므로 별도 사용자 승인 전 실행하지 않는다. `main`, Vercel Production, Supabase 데이터·스키마는 계속 변경 금지다.
+
+## 14. D-009 스마트 HACCP 데이터 의미 교정
+
+### 14.1 결함과 판정
+
+현재 연결된 308건 원본은 전체 HACCP 인증업체 목록이 아니라 스마트 HACCP 등록업체 자료다. 기존 화면은 `is_haccp`를 `HACCP 인증`, `HACCP 미인증`으로 표시해 원본 범위보다 넓은 의미로 해석될 수 있었다.
+
+- 참값은 `스마트 HACCP 등록`으로 표시한다.
+- 거짓값은 일반 HACCP 미인증으로 단정하지 않고 `스마트 HACCP 연결정보 없음`으로 표시한다.
+- URL·API·DB 호환성을 위해 `haccp=1`, `is_haccp` 내부 식별자는 유지한다.
+- 전체 HACCP 인증 여부는 별도 전체 인증업체 원본을 수집·정합화하기 전까지 제공하지 않는다.
+
+### 14.2 검증
+
+| 검증 | 결과 |
+|---|---|
+| 오해 가능 레거시 UI 문구 | 0건 |
+| lint / typecheck / production build | PASS |
+| 읽기 전용 원본 제품·스마트 HACCP 필터 API | HTTP 200 |
+| 제품·시설 연결 및 후보 근거 | PASS |
+| 1440×1000·390×844 제품 화면 | 가로 넘침 0, 콘솔·페이지 오류 0 |
+| 스마트 HACCP 집중 Playwright | 8/8 PASS |
+
+판정: **SMART_HACCP_SEMANTIC_CORRECTION_LOCAL_QA_PASS / PREVIEW_UPDATE_PENDING / PRODUCTION_UNCHANGED.**
+
+## 15. D-009 스마트 HACCP 교정분 커밋 전 감사
+
+### 15.1 후보·제외 경계
+
+| 구분 | 파일 수 | 처리 |
+|---|---:|---|
+| 앱·라이브러리·E2E | 27 | 스마트 HACCP 의미 교정 커밋 후보 |
+| QA 문서 | 1 | 이 감사 기록을 포함한 커밋 후보 |
+| `.claude/settings.local.json` | 1 | 개인 로컬 설정이므로 제외 |
+| `.moai/project/current-slice.md` | 1 | 선행 게이트 상태를 포함하므로 제외 |
+| VS-I Preview UAT 승인 기록 | 1 | 선행 승인 증거이며 이번 교정 커밋에서 제외 |
+
+- 후보 합계는 **28개**이며 변경량은 문서 기록 전 기준 81 additions / 57 deletions다.
+- 브랜치는 `codex/chg-g6-002-vs-i-preview`, HEAD와 upstream 차이는 `0 / 0`으로 확인했다.
+- 비밀값 패턴과 개인 절대경로 검사는 후보 전체에서 각각 0건이다.
+- 오해 가능 레거시 UI 문구는 런타임·시험 후보 27개에서 0건이다. QA 문서에는 결함의 과거 표현을 설명하는 기록만 남긴다.
+- `git diff --check` 오류는 0건이다. LF→CRLF 안내는 작업환경 줄바꿈 경고이며 코드 오류가 아니다.
+
+### 15.2 재검증
+
+| 검증 | 결과 |
+|---|---|
+| ESLint | PASS — 오류 0, 기존·보조파일 경고 6 |
+| TypeScript `--noEmit` | PASS |
+| Next.js production build | PASS |
+| `/api/products`·스마트 HACCP 필터 API | HTTP 200 |
+| 제품·시설 연결 원본 집중 E2E | 2/2 PASS |
+| 스마트 HACCP 필터·1440×1000·390×844 E2E | 6/6 PASS |
+| 집중 회귀 합계 | **8/8 PASS** |
+
+최초 재실행의 접속 거부는 기능 결함이 아니라 테스트 전용 `VSD_BASE_URL`이 이전 로컬 포트 3013을 가리킨 설정 오류였다. 검증 서버 3018로 `PLAYWRIGHT_BASE_URL`과 `VSD_BASE_URL`을 함께 지정해 동일 6건을 재실행했고 전부 통과했다.
+
+### 15.3 감사 판정
+
+판정: **PRECOMMIT_AUDIT_PASS_WITH_EXCLUSIONS / LOCAL_ONLY / PUSH_APPROVAL_REQUIRED.**
+
+Git add·commit·push·PR 갱신, Vercel Preview·Production, Supabase 변경은 수행하지 않았다. 다음 단계는 사용자 승인 후 위 28개 후보만 별도 커밋해 기존 Preview 브랜치에 push하고 PR·Vercel Preview를 갱신하는 것이다.

@@ -116,7 +116,7 @@ function sourceUnavailable(traceId: string): SourceOutcome<never> {
     error: {
       code: "FG_DATA_UNAVAILABLE",
       message:
-        "제품·HACCP 원본 데이터가 이 실행환경에 연결되지 않았습니다. FOODGROUND_SOURCE_DB를 읽기 전용 원본 DB 경로로 설정해 주세요.",
+        "제품·스마트 HACCP 원본 데이터가 이 실행환경에 연결되지 않았습니다. FOODGROUND_SOURCE_DB를 읽기 전용 원본 DB 경로로 설정해 주세요.",
       retryable: false,
     },
     traceId,

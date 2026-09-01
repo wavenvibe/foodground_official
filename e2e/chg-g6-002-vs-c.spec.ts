@@ -52,13 +52,13 @@ test("productization brief to candidate to facility evidence keeps context", asy
     await expect(page.getByText("충족", { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${viewportName}-candidates.png`), fullPage: true });
 
-    await page.getByRole("link", { name: "업체 제품·HACCP 근거 검증" }).first().click();
+    await page.getByRole("link", { name: "업체 제품·스마트 HACCP 근거 검증" }).first().click();
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: /후보 근거 검증/ })).toBeVisible();
     await expect(page.getByText("과자", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("CCP-S01", { exact: true }).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "이 업체의 생산제품" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "HACCP 인증·CCP 정보" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "스마트 HACCP 등록·CCP 정보" })).toBeVisible();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${viewportName}-facility-context.png`), fullPage: true });
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
