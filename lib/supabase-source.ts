@@ -185,7 +185,11 @@ export async function searchSourceProductsViaSupabase(
       }
       matchedFacilityIds = (facilityMatches ?? []).map((row) => row.mgt_no as string);
     }
-    const countMode: "exact" | "planned" = matchedFacilityIds.length > 0 ? "exact" : "planned";
+    // A facility filter uses the indexed facility_mgt_no column, so an exact
+    // count is both affordable and required for truthful facility evidence.
+    // PostgreSQL's planned count can report dozens of estimated rows even when
+    // the selected facility has no directly linked product rows.
+    const countMode: "exact" | "planned" = matchedFacilityIds.length > 0 || Boolean(facility) ? "exact" : "planned";
     // @MX:NOTE: count="planned" uses Postgres EXPLAIN estimate — avoids seq-scan timeout on 1M rows.
     // Exact count with reported_at ORDER caused PG 57014 (~3.9s). report_no is the PK index.
     let query = supabase
@@ -308,7 +312,7 @@ export async function getSourceFacilityEvidenceViaSupabase(
       supabase.from("facilities").select(FACILITY_COLS).eq("mgt_no", safeMgtNo).maybeSingle(),
       supabase
         .from("products_public")
-        .select("report_no,product_name,category,maker_name,ingredients,shelf_life_days,facility_mgt_no,reported_at,updated_at", { count: "planned" })
+        .select("report_no,product_name,category,maker_name,ingredients,shelf_life_days,facility_mgt_no,reported_at,updated_at", { count: "exact" })
         .eq("facility_mgt_no", safeMgtNo)
         .order("report_no", { ascending: true })
         .limit(12),

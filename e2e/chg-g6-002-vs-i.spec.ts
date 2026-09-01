@@ -77,6 +77,28 @@ test("VS-I-004 GET /api/facilities/[id]/products returns 200 for real facility",
 });
 
 // ---------------------------------------------------------------------------
+// VS-I-004A: facility-scoped totals must be exact and internally consistent.
+// Prevents a planned-count estimate from showing linked products when none exist.
+// ---------------------------------------------------------------------------
+test("VS-I-004A facility product totals are exact and consistent", async ({ request }) => {
+  expect(realFacilityMgtNo, "beforeAll must obtain a real facility_mgt_no").not.toBe("");
+
+  const [searchRes, evidenceRes] = await Promise.all([
+    request.get(`${BASE}/api/products?facility=${encodeURIComponent(realFacilityMgtNo)}&pageSize=20`),
+    request.get(`${BASE}/api/facilities/${encodeURIComponent(realFacilityMgtNo)}/products?page=1`),
+  ]);
+
+  expect(searchRes.status()).toBe(200);
+  expect(evidenceRes.status()).toBe(200);
+
+  const searchBody = await searchRes.json();
+  const evidenceBody = await evidenceRes.json();
+  expect(searchBody.meta.totalIsEstimate).toBe(false);
+  expect(evidenceBody.meta.total).toBe(searchBody.meta.total);
+  expect(evidenceBody.data.length).toBe(Math.min(evidenceBody.meta.total, 12));
+});
+
+// ---------------------------------------------------------------------------
 // VS-I-005: HACCP filter — all returned items must have facility_is_haccp=true
 // ---------------------------------------------------------------------------
 test("VS-I-005 GET /api/products?haccp=1 returns only HACCP-certified products", async ({ request }) => {
