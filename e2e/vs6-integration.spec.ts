@@ -34,10 +34,13 @@ test("home: shows nav links", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   const nav = page.getByRole("navigation", { name: "주요 메뉴" });
+  await expect(nav.getByRole("link", { name: "제품", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "레시피", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "대체 식재료", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "공동제조", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "제조시설", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "검토함", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toHaveCount(0);
 });
 
 test("home: mobile hamburger opens menu", async ({ page }, testInfo) => {

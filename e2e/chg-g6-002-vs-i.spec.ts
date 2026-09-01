@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
-const BASE = process.env.VSD_BASE_URL ?? "http://127.0.0.1:3013";
+const BASE =
+  process.env.VSD_BASE_URL ??
+  process.env.PLAYWRIGHT_BASE_URL ??
+  "http://127.0.0.1:3013";
 const EVIDENCE_DIR = path.join(process.cwd(), "output", "playwright", "chg-g6-002-vs-i");
 
 type ProductItem = {

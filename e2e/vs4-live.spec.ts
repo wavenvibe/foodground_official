@@ -42,15 +42,20 @@ test("home: loads without error", async ({ page }, testInfo) => {
 
 // ─── Header navigation ───────────────────────────────────────────────────────
 
-test("header: desktop nav shows 4 approved links", async ({ page }, testInfo) => {
+test("header: desktop nav shows current approved productization links", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "주요 메뉴" });
   await expect(nav).toBeVisible();
+  await expect(nav.getByRole("link", { name: "제품", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "레시피", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "대체 식재료", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "공동제조", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "제조시설", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "검토함", exact: true })).toBeVisible();
+
+  // The deprecated standalone ingredient list was removed from navigation.
+  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toHaveCount(0);
 
   // Removed nav items must not be present within header nav
   await expect(nav.getByRole("link", { name: "제품 검색" })).toHaveCount(0);
