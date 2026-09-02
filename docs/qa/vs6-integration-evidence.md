@@ -1,8 +1,35 @@
 # VS-6 통합 QA 증거
 
-Date: 2026-08-28
-Branch: codex/g1-baseline
-Dev server: http://localhost:3000 (real Supabase, 94,723 facilities)
+Date: 2026-08-29 (운영배포 결과 반영)
+Branch: main (SHA: 68963ef82798aa3219ddf8e2344f0a4eab73c63f)
+운영 URL: https://foodground-official.vercel.app
+배포 ID: dpl_5G666iP5aBn53B46cUJemn6r1B2a
+
+---
+
+## 운영 스모크 QA (Playwright — 2026-08-29)
+
+**Target**: `https://foodground-official.vercel.app`
+**Result**: **19 passed, 5 skipped, 0 failed**
+
+| 화면 | desktop 1440×1000 | mobile 390×844 |
+|------|------------------|----------------|
+| 홈 (`/`) | ✅ 200, overflow 없음 | ✅ 200, overflow 없음 |
+| 레시피 목록 (`/recipes`) | ✅ 200 | ✅ 200 |
+| 레시피 상세 (`/recipes/6942782`) | ✅ 200 | ✅ 200 |
+| 식재료 목록 (`/ingredients`) | ✅ 200 | ✅ 200 |
+| 대체 식재료 (`/substitutes?ingredient=가시오갈피`) | ✅ 200, exact match | ✅ 200, exact match |
+| 시설 목록 (`/facilities`) | ✅ 200 | ✅ 200 |
+| 시설 상세 (`/facilities/3450000-106-2006-00035`) | ✅ 200 | ✅ 200 |
+| API 비공개 컬럼 미노출 | ✅ | — (desktop-only) |
+| API 에러 FG_* 형식, SQL 미노출 | ✅ | — (desktop-only) |
+| 검색 리다이렉트 (`/search` → `/facilities`) | ✅ | — (desktop-only) |
+
+스크린샷: `docs/qa/evidence/vs6-production/` (14개)
+
+---
+
+## 로컬 통합 QA (2026-08-28, 원본)
 
 ---
 

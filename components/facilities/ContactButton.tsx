@@ -8,7 +8,7 @@ interface ContactButtonProps {
 }
 
 function makeTemplate(facilityName: string): string {
-  return `안녕하세요. ${facilityName}에 공동제조 문의드립니다.\n\n■ 개발 또는 제조 희망 제품: \n■ 희망 수량: \n■ 희망 일정: \n■ HACCP 필요 여부: \n■ 기타 요청사항: `.trim();
+  return `안녕하세요. ${facilityName}에 공동제조 문의드립니다.\n\n■ 개발 또는 제조 희망 제품: \n■ 희망 수량: \n■ 희망 일정: \n■ 스마트 HACCP 등록 필요 여부: \n■ 기타 요청사항: `.trim();
 }
 
 export default function ContactButton({ facilityName }: ContactButtonProps) {

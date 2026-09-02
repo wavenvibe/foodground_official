@@ -100,6 +100,16 @@ export async function searchPublicIngredients(
       .range(offset, offset + pageSize - 1);
 
     if (error) {
+      if (error.code === "PGRST103") {
+        let countQuery = supabase
+          .from("ingredients")
+          .select("ingredient_id", { count: "exact", head: true });
+        if (q) countQuery = countQuery.ilike("ingredient_name", `%${q}%`);
+        const { count: total, error: countError } = await countQuery;
+        if (!countError) {
+          return { ok: true, data: [], meta: { page, pageSize, total: total ?? 0 }, traceId };
+        }
+      }
       console.warn("[ingredient-search] query failed", {
         traceId,
         providerCode: error.code,

@@ -1,8 +1,11 @@
 # VS-6 릴리스 준비 상태
 
-Date: 2026-08-28
-Branch: codex/g1-baseline
-Status: commit·push·Vercel 배포 사용자 승인 대기
+Date: 2026-08-29 (운영배포 완료 반영)
+Branch: main (merge SHA: 68963ef82798aa3219ddf8e2344f0a4eab73c63f)
+Status: **기술 배포 완료 / 사용자 품질 재검토 및 안정화 필요**
+
+운영 URL: https://foodground-official.vercel.app
+배포 ID: dpl_5G666iP5aBn53B46cUJemn6r1B2a
 
 ---
 
@@ -37,13 +40,24 @@ Status: commit·push·Vercel 배포 사용자 승인 대기
 
 ---
 
-## 배포 전 필수 확인 (사용자 실행)
+## 운영배포 완료 항목 (2026-08-28)
 
-1. `git add` → `git commit` → `git push origin codex/g1-baseline`
-2. Vercel 프로젝트 연결 확인: 신 저장소(`wavenvibe/foodground_official`) 연결 여부
-3. Vercel 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` 설정 여부
-4. 배포 후 프리뷰 URL에서 smoke test: `/`, `/facilities`, `/substitutes?ingredient=가시오갈피`
-5. Supabase RLS: 배포 후 익명 접근 동작 재확인
+| 항목 | 결과 |
+|------|------|
+| PR #1 merge (codex/g1-baseline → main) | ✅ 완료 (SHA: 68963ef) |
+| Vercel 프로젝트 생성 (foodground-official) | ✅ 완료 |
+| 환경변수 설정 (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) | ✅ 완료 |
+| 운영 배포 (main, READY) | ✅ 완료 |
+| 운영 스모크 QA (Playwright 19/19 pass) | ✅ 완료 |
+| 기존 foodground.vercel.app 무변경 | ✅ 확인 |
+
+## 운영 QA 결과 추가
+
+| Gate | Command | Result |
+|------|---------|--------|
+| 운영 E2E (Playwright) | `BASE_URL=https://foodground-official.vercel.app npx playwright test e2e/vs6-production.spec.ts` | ✅ 19 passed, 5 skipped |
+| 운영 HTTP 상태 | curl 16개 경로 | ✅ 모두 200/307 정상 |
+| 운영 보안 체크 | API 비공개 컬럼·SQL 미노출 | ✅ |
 
 ---
 

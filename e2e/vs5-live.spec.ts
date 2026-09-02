@@ -94,7 +94,7 @@ test("facilities: haccp filter", async ({ page }, testInfo) => {
     test.skip();
     return;
   }
-  // All returned items must have HACCP certification
+  // All returned items must have Smart HACCP registration linkage
   for (const item of items) {
     expect(item.is_haccp).toBe(true);
   }
@@ -223,9 +223,9 @@ test("facilities: filter context shows on detail from filtered list", async ({ p
   await page.waitForLoadState("networkidle");
   // Filter context panel must be present
   await expect(page.locator(".facility-detail__filter-context")).toBeVisible();
-  // Must show 경기도 and HACCP labels
+  // Must show 경기도 and Smart HACCP labels
   await expect(page.locator(".facility-detail__filter-context")).toContainText("경기도");
-  await expect(page.locator(".facility-detail__filter-context")).toContainText("HACCP");
+  await expect(page.locator(".facility-detail__filter-context")).toContainText("스마트 HACCP");
   await noHorizontalOverflow(page);
   await shot(page, `facilities-filter-context-${testInfo.project.name}`);
 });

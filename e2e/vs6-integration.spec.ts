@@ -34,10 +34,13 @@ test("home: shows nav links", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   const nav = page.getByRole("navigation", { name: "주요 메뉴" });
+  await expect(nav.getByRole("link", { name: "제품", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "레시피", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "대체 식재료", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "공동제조", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "제조시설", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "검토함", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toHaveCount(0);
 });
 
 test("home: mobile hamburger opens menu", async ({ page }, testInfo) => {
@@ -88,27 +91,24 @@ test("recipes: detail not-found returns 404 page", async ({ page }) => {
   await expect(page.getByRole("heading")).toBeVisible();
 });
 
-// ─── /ingredients ─────────────────────────────────────────────────────────────
+// ─── legacy /ingredients redirect ─────────────────────────────────────────────
 
-test("ingredients: list loads", async ({ page }, testInfo) => {
+test("ingredients: legacy list route redirects to substitutes", async ({ page }, testInfo) => {
   const res = await page.goto("/ingredients");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noOverflow(page);
-  await shot(page, `ingredients-list-${testInfo.project.name}`);
+  await shot(page, `ingredients-redirect-${testInfo.project.name}`);
 });
 
-test("ingredients: detail loads", async ({ page }, testInfo) => {
-  await page.goto("/ingredients");
-  await page.waitForLoadState("networkidle");
-  const firstLink = page.locator("a[href^='/ingredients/']").first();
-  if (!(await firstLink.isVisible().catch(() => false))) { test.skip(); return; }
-  const href = await firstLink.getAttribute("href");
-  const res = await page.goto(href!);
+test("ingredients: legacy detail route redirects to substitutes", async ({ page }, testInfo) => {
+  const res = await page.goto("/ingredients/99999999");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noOverflow(page);
-  await shot(page, `ingredients-detail-${testInfo.project.name}`);
+  await shot(page, `ingredients-detail-redirect-${testInfo.project.name}`);
 });
 
 // ─── /substitutes ─────────────────────────────────────────────────────────────
@@ -301,7 +301,7 @@ test("facilities: filter context panel (FG-FUN-034) shows on detail from filtere
   const panel = page.locator(".facility-detail__filter-context");
   await expect(panel).toBeVisible();
   await expect(panel).toContainText("경기도");
-  await expect(panel).toContainText("HACCP");
+  await expect(panel).toContainText("스마트 HACCP");
   await expect(page.locator(".filter-condition__status").first()).toBeVisible();
   await noOverflow(page);
   await shot(page, `facilities-filter-context-${testInfo.project.name}`);

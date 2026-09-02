@@ -144,6 +144,26 @@ export async function searchPublicFacilities(
       .range(offset, offset + pageSize - 1);
 
     if (error) {
+      if (error.code === "PGRST103") {
+        let countQuery = supabase
+          .from("facilities")
+          .select("mgt_no", { count: "exact", head: true });
+        if (input.status === "all") {
+          // no status filter
+        } else if (!input.status) {
+          countQuery = countQuery.ilike("status", "영업%");
+        } else {
+          countQuery = countQuery.eq("status", input.status);
+        }
+        if (q) countQuery = countQuery.ilike("name", `%${q}%`);
+        if (sido) countQuery = countQuery.eq("region_sido", sido);
+        if (businessType) countQuery = countQuery.eq("business_type", businessType);
+        if (input.haccp) countQuery = countQuery.eq("is_haccp", true);
+        const { count: total, error: countError } = await countQuery;
+        if (!countError) {
+          return { ok: true, data: [], meta: { page, pageSize, total: total ?? 0 }, traceId };
+        }
+      }
       console.warn("[facility-search] query failed", {
         traceId,
         providerCode: error.code,

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Foodground UI-GATE-2 상세시안</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="?screen=home" aria-label="푸드그라운드 홈">
+        <span class="brand-mark">FG</span>
+        <span>FOODGROUND</span>
+      </a>
+      <nav class="desktop-nav" aria-label="주요 메뉴">
+        <a href="?screen=recipes">레시피</a>
+        <a href="?screen=ingredients">식재료</a>
+        <a href="?screen=substitutes">대체 식재료</a>
+        <a href="?screen=facilities">제조시설</a>
+      </nav>
+      <button class="mobile-menu" type="button" aria-label="메뉴 열기" aria-expanded="false">메뉴</button>
+    </header>
+    <div class="mobile-drawer" hidden>
+      <a href="?screen=recipes">레시피</a>
+      <a href="?screen=ingredients">식재료</a>
+      <a href="?screen=substitutes">대체 식재료</a>
+      <a href="?screen=facilities">제조시설</a>
+    </div>
+
+    <main id="app" tabindex="-1"></main>
+
+    <footer>
+      <strong>FOODGROUND</strong>
+      <span>레시피에서 제조시설 문의까지 이어지는 식품개발 탐색 도구</span>
+      <span>본 화면은 UI-GATE-2 검토용 시안이며 실제 판정·계약·법률 자문을 제공하지 않습니다.</span>
+    </footer>
+    <script src="./prototype.js"></script>
+  </body>
+</html>

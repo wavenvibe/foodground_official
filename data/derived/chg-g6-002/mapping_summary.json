@@ -1,0 +1,14 @@
+{
+  "rule_version": "v0.2-norm-name-sido-in-addr-no-bidirectional",
+  "source_db_sha256": "23104bfccc0163fb2c17c3a89739ba1e05d713b841babe66d5b8b9a6666a7444",
+  "source_profiles_sha256": "bd09f0ce70652e15a43ad13225b01242bdd9b70010ca1066c306330b6f470ec6",
+  "total": 308,
+  "linked": 265,
+  "ambiguous": 4,
+  "unlinked": 39,
+  "exceptions_count": 43,
+  "distribution_ok": true,
+  "expected_linked": 265,
+  "expected_ambiguous": 4,
+  "expected_unlinked": 39
+}

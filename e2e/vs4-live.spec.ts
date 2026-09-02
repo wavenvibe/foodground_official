@@ -42,15 +42,20 @@ test("home: loads without error", async ({ page }, testInfo) => {
 
 // ─── Header navigation ───────────────────────────────────────────────────────
 
-test("header: desktop nav shows 4 approved links", async ({ page }, testInfo) => {
+test("header: desktop nav shows current approved productization links", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "주요 메뉴" });
   await expect(nav).toBeVisible();
+  await expect(nav.getByRole("link", { name: "제품", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "레시피", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "대체 식재료", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "공동제조", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "제조시설", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "검토함", exact: true })).toBeVisible();
+
+  // The deprecated standalone ingredient list was removed from navigation.
+  await expect(nav.getByRole("link", { name: "식재료", exact: true })).toHaveCount(0);
 
   // Removed nav items must not be present within header nav
   await expect(nav.getByRole("link", { name: "제품 검색" })).toHaveCount(0);
@@ -189,31 +194,24 @@ test("recipes: detail page loads", async ({ page }, testInfo) => {
   await shot(page, `recipes-detail-${testInfo.project.name}`);
 });
 
-// ─── /ingredients ─────────────────────────────────────────────────────────────
+// ─── legacy /ingredients redirect ─────────────────────────────────────────────
 
-test("ingredients: list page loads", async ({ page }, testInfo) => {
+test("ingredients: legacy list route redirects to substitutes", async ({ page }, testInfo) => {
   const res = await page.goto("/ingredients");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noHorizontalOverflow(page);
-  await shot(page, `ingredients-list-${testInfo.project.name}`);
+  await shot(page, `ingredients-redirect-${testInfo.project.name}`);
 });
 
-test("ingredients: detail page loads", async ({ page }, testInfo) => {
-  await page.goto("/ingredients");
-  await page.waitForLoadState("networkidle");
-  const firstLink = page.locator("a[href^='/ingredients/']").first();
-  const hasLink = await firstLink.isVisible().catch(() => false);
-  if (!hasLink) {
-    test.skip();
-    return;
-  }
-  const href = await firstLink.getAttribute("href");
-  const res = await page.goto(href!);
+test("ingredients: legacy detail route redirects to substitutes", async ({ page }, testInfo) => {
+  const res = await page.goto("/ingredients/99999999");
   expect(res?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/substitutes$/);
   await noHorizontalOverflow(page);
-  await shot(page, `ingredients-detail-${testInfo.project.name}`);
+  await shot(page, `ingredients-detail-redirect-${testInfo.project.name}`);
 });
 
 // ─── /api/ingredients/[id] ────────────────────────────────────────────────────

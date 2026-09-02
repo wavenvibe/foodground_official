@@ -49,7 +49,7 @@ export default function DataWarning({
               <span>생산이력: <strong style={{ color: "var(--ink)" }}>{fmt(productionAt)}</strong></span>
             )}
             {haccpAt && (
-              <span>HACCP: <strong style={{ color: "var(--ink)" }}>{fmt(haccpAt)}</strong></span>
+              <span>스마트 HACCP: <strong style={{ color: "var(--ink)" }}>{fmt(haccpAt)}</strong></span>
             )}
             {suspensionAt && (
               <span>회수·판매중지: <strong style={{ color: "var(--ink)" }}>{fmt(suspensionAt)}</strong></span>

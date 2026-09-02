@@ -1,6 +1,10 @@
+import Link from "next/link";
 import type { SubstituteCandidate, StandardFood } from "@/lib/substitutes";
 import SimilarityBar from "./SimilarityBar";
 import NutritionTable from "./NutritionTable";
+import SaveButton from "@/components/saved/SaveButton";
+import { productizationHref, type ProductizationSourceType } from "@/lib/productization-context";
+import { SAVED_KEYS, type SavedSubstitute } from "@/lib/saved-items";
 
 const SIM_LABELS: Record<string, string> = {
   sim_nutrition: "영양 성분",
@@ -14,11 +18,25 @@ const SIM_LABELS: Record<string, string> = {
 interface SubstituteCandidateListProps {
   candidates: SubstituteCandidate[];
   sourceFood: StandardFood | null;
+  ingredient: string;
+  ingredientId: string;
+  recipe: string;
+  recipeName: string;
+  sourceType?: ProductizationSourceType;
+  sourceId: string;
+  sourceName: string;
 }
 
 export default function SubstituteCandidateList({
   candidates,
   sourceFood,
+  ingredient,
+  ingredientId,
+  recipe,
+  recipeName,
+  sourceType,
+  sourceId,
+  sourceName,
 }: SubstituteCandidateListProps) {
   if (!sourceFood || candidates.length === 0) return null;
   return (
@@ -26,6 +44,18 @@ export default function SubstituteCandidateList({
       {candidates.map((c, idx) => {
         const food = c.candidate_food;
         const finalScore = c.score_final != null ? Math.round(c.score_final * 100) : null;
+
+        const briefHref = productizationHref("/manufacturing-brief", {
+          sourceType: sourceType ?? (recipe ? "recipe" : "ingredient"),
+          sourceId: sourceId || recipe || ingredientId,
+          sourceName: sourceName || recipeName || ingredient,
+          recipeId: recipe,
+          recipeName,
+          ingredientId,
+          ingredientName: ingredient,
+          substituteId: food.standard_food_id,
+          substituteName: food.name,
+        });
 
         return (
           <li key={food.standard_food_id} className="candidate-card">
@@ -79,6 +109,29 @@ export default function SubstituteCandidateList({
                 분석 기준일: {c.basis_date.slice(0, 10)}
               </p>
             )}
+
+            <div className="candidate-card__action">
+              <SaveButton<SavedSubstitute>
+                storageKey={SAVED_KEYS.substitutes}
+                itemKey="standard_food_id"
+                item={{
+                  standard_food_id: food.standard_food_id,
+                  name: food.name,
+                  food_group: food.food_group ?? null,
+                  source_ingredient: ingredient,
+                  score_final: c.score_final,
+                  saved_at: new Date().toISOString(),
+                }}
+                label="대체 후보 저장"
+                savedLabel="대체 후보 저장됨"
+              />
+              <Link href={briefHref} className="button button--point">
+                이 후보로 제품화 요건 확인
+              </Link>
+              <p className="candidate-card__action-note">
+                제품유형과 필수 공정을 확인한 뒤 근거가 연결된 제조후보를 비교합니다.
+              </p>
+            </div>
           </li>
         );
       })}

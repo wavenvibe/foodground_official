@@ -150,10 +150,10 @@ export default function SearchFilters({
         </select>
       </div>
 
-      {/* HACCP 인증 */}
+      {/* Smart HACCP registration */}
       <div className="flex flex-col gap-1.5">
         <span style={labelStyle} id="haccp-label">
-          HACCP 인증
+          스마트 HACCP 등록
         </span>
         <div className="flex gap-1.5" role="group" aria-labelledby="haccp-label">
           <button
@@ -165,7 +165,7 @@ export default function SearchFilters({
             aria-pressed={currentHaccp === "1"}
             disabled={isPending}
           >
-            인증만
+            등록만
           </button>
           <button
             type="button"
