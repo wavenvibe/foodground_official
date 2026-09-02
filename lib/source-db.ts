@@ -3,6 +3,10 @@ import "server-only";
 import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
 import {
+  isPublicProductExcluded,
+  PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS,
+} from "./product-publication";
+import {
   searchSourceProductsViaSupabase,
   getSourceProductViaSupabase,
   getSourceFacilityEvidenceViaSupabase,
@@ -225,6 +229,12 @@ export async function searchSourceProducts(input: {
     const result = withSourceDb((db) => {
       const where: string[] = [];
       const bindings: Record<string, string | number> = { limit: pageSize, offset };
+      const excludedProductBindings = PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS.map((reportNo, index) => {
+        const key = `excludedProduct${index}`;
+        bindings[key] = reportNo;
+        return `@${key}`;
+      });
+      where.push(`p.report_no NOT IN (${excludedProductBindings.join(",")})`);
       if (q) {
         where.push("(p.product_name LIKE @q ESCAPE char(92) OR p.category LIKE @q ESCAPE char(92) OR p.maker_name LIKE @q ESCAPE char(92))");
         bindings.q = `%${escapeLike(q)}%`;
@@ -264,6 +274,9 @@ export async function getSourceProduct(reportNo: string): Promise<SourceOutcome<
   if (!safeReportNo || !/^[0-9A-Za-z_-]+$/.test(safeReportNo)) {
     return badRequest(traceId, "제품 식별자가 올바르지 않습니다.");
   }
+  if (isPublicProductExcluded(safeReportNo)) {
+    return { ok: true, data: null, traceId };
+  }
 
   try {
     const result = withSourceDb((db) => {
@@ -300,8 +313,9 @@ export async function getSourceFacilityEvidence(mgtNo: string): Promise<SourceOu
       const rawFacility = db.prepare("SELECT mgt_no, name, biz_type, status, tel, homepage, region_sido, region_sigungu, is_haccp, updated_at FROM facility WHERE mgt_no = ? LIMIT 1").get(safeMgtNo) as RawFacilityRow | undefined;
       if (!rawFacility) return null;
       const facility = mapFacility(rawFacility);
-      const products = (db.prepare(`${PRODUCT_SELECT} WHERE p.facility_mgt_no = ? ORDER BY CASE WHEN p.reported_at <= date('now', '+1 day') THEN p.reported_at ELSE '' END DESC, p.report_no ASC LIMIT 12`).all(safeMgtNo) as RawProductRow[]).map(mapProduct);
-      const productTotal = (db.prepare("SELECT COUNT(*) AS total FROM production_log WHERE facility_mgt_no = ?").get(safeMgtNo) as { total: number }).total;
+      const excludedPlaceholders = PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS.map(() => "?").join(",");
+      const products = (db.prepare(`${PRODUCT_SELECT} WHERE p.facility_mgt_no = ? AND p.report_no NOT IN (${excludedPlaceholders}) ORDER BY CASE WHEN p.reported_at <= date('now', '+1 day') THEN p.reported_at ELSE '' END DESC, p.report_no ASC LIMIT 12`).all(safeMgtNo, ...PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS) as RawProductRow[]).map(mapProduct);
+      const productTotal = (db.prepare(`SELECT COUNT(*) AS total FROM production_log WHERE facility_mgt_no = ? AND report_no NOT IN (${excludedPlaceholders})`).get(safeMgtNo, ...PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS) as { total: number }).total;
       const haccp = db.prepare("SELECT cert_no, cert_date, ccp_list, updated_at FROM haccp_cert WHERE facility_mgt_no = ? ORDER BY COALESCE(cert_date, '') DESC").all(safeMgtNo) as HaccpEvidence[];
       const safety = db.prepare("SELECT product_name, reason, method, batch_mfg_date, batch_exp_date, barcode, product_code, image_url, published_at FROM sales_suspension WHERE facility_mgt_no = ? ORDER BY COALESCE(published_at, '') DESC LIMIT 20").all(safeMgtNo) as SafetyEvidence[];
       return { facility, products, productTotal, haccp, safety };
@@ -345,7 +359,7 @@ export async function listSourceProductCategories(limit = 30): Promise<string[]>
   try {
     return (
       withSourceDb((db) =>
-        (db.prepare("SELECT category FROM production_log WHERE category IS NOT NULL AND TRIM(category) <> '' GROUP BY category ORDER BY COUNT(*) DESC, category ASC LIMIT ?").all(Math.max(1, Math.min(50, limit))) as { category: string }[]).map((row) => row.category),
+        (db.prepare(`SELECT category FROM production_log WHERE category IS NOT NULL AND TRIM(category) <> '' AND report_no NOT IN (${PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS.map(() => "?").join(",")}) GROUP BY category ORDER BY COUNT(*) DESC, category ASC LIMIT ?`).all(...PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS, Math.max(1, Math.min(50, limit))) as { category: string }[]).map((row) => row.category),
       ) ?? []
     );
   } catch {

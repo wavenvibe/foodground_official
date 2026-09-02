@@ -2,6 +2,10 @@ import "server-only";
 
 import categorySnapshot from "../data/derived/chg-g6-002/product_category_top30.json";
 import { createPublicServerClient } from "./supabase-public-server";
+import {
+  isPublicProductExcluded,
+  PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS_POSTGREST,
+} from "./product-publication";
 import type {
   FacilityEvidenceBundle,
   HaccpEvidence,
@@ -203,7 +207,8 @@ export async function searchSourceProductsViaSupabase(
     // Exact count with reported_at ORDER caused PG 57014 (~3.9s). report_no is the PK index.
     let query = supabase
       .from("products_public")
-      .select(`${PRODUCT_COLS},${facilityEmbed}`, { count: countMode });
+      .select(`${PRODUCT_COLS},${facilityEmbed}`, { count: countMode })
+      .not("report_no", "in", PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS_POSTGREST);
 
     if (q) {
       const filters = [
@@ -251,6 +256,9 @@ export async function getSourceProductViaSupabase(
   const safeReportNo = safeIdentifier(reportNo);
   if (!safeReportNo || !/^[0-9A-Za-z_-]+$/.test(safeReportNo)) {
     return badRequest(traceId, "제품 식별자가 올바르지 않습니다.");
+  }
+  if (isPublicProductExcluded(safeReportNo)) {
+    return { ok: true, data: null, traceId };
   }
 
   try {
@@ -329,6 +337,7 @@ export async function getSourceFacilityEvidenceViaSupabase(
         .from("products_public")
         .select("report_no,product_name,category,maker_name,ingredients,shelf_life_days,facility_mgt_no,reported_at,updated_at", { count: "exact" })
         .eq("facility_mgt_no", safeMgtNo)
+        .not("report_no", "in", PUBLIC_EXCLUDED_PRODUCT_REPORT_NOS_POSTGREST)
         .order("report_no", { ascending: true })
         .limit(12),
       supabase
