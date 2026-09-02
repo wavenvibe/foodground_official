@@ -334,6 +334,35 @@ test("VS-I-020 GET /api/products?q=김치 returns 200 with non-empty 김치-rele
 });
 
 // ---------------------------------------------------------------------------
+// VS-I-020A: product-name search uses contains semantics, not exact lexemes.
+// ---------------------------------------------------------------------------
+test("VS-I-020A q=뽀얀육수 includes both 뽀얀육수 and 뽀얀육수3", async ({ request }) => {
+  const res = await request.get(`${BASE}/api/products?q=${encodeURIComponent("뽀얀육수")}&pageSize=20`);
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  const names = new Set((body.data as Array<{ product_name: string }>).map((item) => item.product_name));
+
+  expect(names.has("뽀얀육수"), "Exact product name must remain visible").toBe(true);
+  expect(names.has("뽀얀육수3"), "Product names containing the query must also be visible").toBe(true);
+  expect(body.meta.total).toBe(body.data.length);
+  expect(body.meta.totalIsEstimate).toBe(false);
+});
+
+// ---------------------------------------------------------------------------
+// VS-I-020B: the same free-text query also searches manufacturer names.
+// ---------------------------------------------------------------------------
+test("VS-I-020B q=웨이브앤바이브 returns manufacturer-name matches", async ({ request }) => {
+  const res = await request.get(`${BASE}/api/products?q=${encodeURIComponent("웨이브앤바이브")}&pageSize=50`);
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body.data.length, "Manufacturer search must return at least one product").toBeGreaterThan(0);
+  for (const item of body.data as Array<{ maker_name: string | null; facility_name: string | null }>) {
+    const searchableCompany = `${item.maker_name ?? ""} ${item.facility_name ?? ""}`;
+    expect(searchableCompany).toContain("웨이브앤바이브");
+  }
+});
+
+// ---------------------------------------------------------------------------
 // VS-I-021: meta.totalIsEstimate present and true on Supabase path
 // ---------------------------------------------------------------------------
 test("VS-I-021 GET /api/products meta includes totalIsEstimate=true on Supabase path", async ({ request }) => {

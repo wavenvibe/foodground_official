@@ -28,6 +28,13 @@ const QUICK_FILTERS = [
   { label: "제조시설 전체", href: "/facilities" },
 ] as const;
 
+const HERO_STATS = [
+  { value: "104.8만 건", label: "품목보고 제품" },
+  { value: "9.5만 곳", label: "제조시설" },
+  { value: "7만 건", label: "레시피" },
+  { value: "1.9만 종", label: "식재료 데이터" },
+] as const;
+
 const FEATURES = [
   { label: "제품", href: "/products", description: "제품·제조업체·스마트 HACCP 근거 연결" },
   { label: "레시피", href: "/recipes", description: "70,000+ 식품 레시피 탐색" },
@@ -73,13 +80,37 @@ export default async function HomePage() {
               className="text-3xl sm:text-4xl font-bold leading-tight mb-4"
               style={{ color: "var(--green-900)" }}
             >
-              제품에서 제조업체·스마트 HACCP 근거까지
+              식품 아이디어를 찾고, 만들 수 있는 곳까지
             </h1>
             <p
               className="text-lg mb-8"
               style={{ color: "var(--ink-2)" }}
             >
-              품목보고 제품을 기준으로 실제 생산업체와 인증·공정·안전정보를 한 흐름에서 확인하세요.
+              레시피와 대체 식재료를 탐색하고, 비슷한 제품을 실제로 만든 제조업체와
+              스마트 HACCP·공정·안전정보까지 한곳에서 확인하세요.
+            </p>
+
+            <div className="mb-8 flex flex-wrap justify-center gap-3" aria-label="주요 시작 경로">
+              <Link className="button button--point" href="/recipes">레시피로 시작하기</Link>
+              <Link className="button button--secondary" href="/products">제품·제조업체 찾기</Link>
+            </div>
+
+            <dl className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="푸드그라운드 공개 데이터 규모">
+              {HERO_STATS.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-xl px-3 py-4 text-center"
+                  style={{ background: "var(--paper)", border: "1px solid var(--green-300)" }}
+                >
+                  <dt className="text-sm" style={{ color: "var(--muted)" }}>{stat.label}</dt>
+                  <dd className="mt-1 text-xl font-bold" style={{ color: "var(--green-900)" }}>{stat.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mb-8 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              81.6만 건의 제품–제조시설 연결 근거 · 스마트 HACCP 등록 정보 308건 · 제조공정 프로필 265건
+              <br />
+              <span className="text-xs" style={{ color: "var(--muted)" }}>공개 데이터 기준 · 수치는 갱신에 따라 달라질 수 있습니다.</span>
             </p>
 
             <form action="/products" method="get" className="mx-auto flex max-w-2xl gap-2" role="search" aria-label="제품 검색">
