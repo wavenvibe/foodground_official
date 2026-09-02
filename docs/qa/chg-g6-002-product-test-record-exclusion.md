@@ -3,7 +3,7 @@
 - 변경 ID: `CHG-G6-002-QA-PRODUCT-TEST-001`
 - 유형: 운영 데이터 공개경계 결함 수정
 - 대상 흐름: 제품 목록·검색·상세·시설 연결제품
-- 상태: 로컬 구현·검증 완료
+- 상태: PR #6 Preview 구현·검증 완료
 
 ## 현상
 
@@ -51,3 +51,16 @@
 - `뽀얀육수`·`웨이브앤바이브` 포함검색: 정상 유지
 - Supabase DDL·DML·migration: 미실행
 - 기존 `foodground`: 미변경
+
+## PR·Preview 검증 결과
+
+- 브랜치: `codex/hide-public-test-products`
+- 구현 커밋: `f5dc7398d9da949f7e4f32faf8b789999d296f3c`
+- PR: `wavenvibe/foodground_official` #6 (`main` 대상, open)
+- Preview 배포: `dpl_7Tso8QdQrr5xCdGN2WgdyWWBCpyQ` (`READY`)
+- 기본 제품 목록 API: HTTP 200, 세 시험 품목 미노출
+- `식약처TEST업소` 검색 API·화면: HTTP 200, 총 0건
+- 세 시험 품목 직접 상세 API: HTTP 404, `FG_NOT_FOUND`
+- `뽀얀육수` 포함검색 API·화면: HTTP 200, 4건
+- `웨이브앤바이브` 제조업체명 포함검색: 정상 유지
+- 원격 `main`·Production·Supabase·기존 `foodground`: 미변경
