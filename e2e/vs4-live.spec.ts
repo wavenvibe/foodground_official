@@ -45,14 +45,14 @@ test("home: loads without error", async ({ page }, testInfo) => {
 test("header: desktop nav shows current approved productization links", async ({ page }, testInfo) => {
   if (testInfo.project.name !== "desktop") test.skip();
   await page.goto("/");
-  const nav = page.getByRole("navigation", { name: "주요 메뉴" });
+  const nav = page.locator(".home-v3-header");
   await expect(nav).toBeVisible();
   await expect(nav.getByRole("link", { name: "제품", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "레시피", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "대체 식재료", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "공동제조", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "제조시설", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "검토함", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: /^검토함/ })).toBeVisible();
 
   // The deprecated standalone ingredient list was removed from navigation.
   await expect(nav.getByRole("link", { name: "식재료", exact: true })).toHaveCount(0);
@@ -71,7 +71,7 @@ test("header: mobile hamburger accessible at 390px", async ({ page }, testInfo) 
   await expect(hamburger).toBeVisible();
 
   // Desktop nav should be hidden on mobile
-  await expect(page.getByRole("navigation", { name: "주요 메뉴" })).toBeHidden();
+  await expect(page.locator(".home-v3-header__nav:visible")).toHaveCount(0);
 
   // Open mobile menu
   await hamburger.click();

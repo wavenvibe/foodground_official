@@ -42,8 +42,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <main className="page-container">
         <header className="page-heading">
           <p className="eyebrow">PRODUCT EVIDENCE</p>
-          <h1>제품·제조업체 연결 검색</h1>
-          <p>식품 제품을 찾고 실제 제조업체, 스마트 HACCP 등록·CCP, 직접 연결된 안전정보까지 확인합니다.</p>
+          <h1>이 제품, 누가 어디서 만들고 있을까요?</h1>
+          <p>제품명이나 제조업체명을 검색하면 실제 품목보고 제품과 생산업체, 스마트 HACCP·공정·안전정보를 함께 확인할 수 있어요.</p>
         </header>
         <ProductSearchForm defaultValue={q} />
         <div className="product-discovery-layout">

@@ -1,41 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSyncStatus } from "@/lib/facility";
 
 export const dynamic = "force-dynamic";
 
-const POPULAR_CATEGORIES = [
-  {
-    label: "식품 제조·가공",
-    bizType: "식품제조가공업",
-    emoji: "🏭",
-  },
-  {
-    label: "기타 식품 제조·가공",
-    bizType: "기타 식품제조가공업",
-    emoji: "🍱",
-  },
-  {
-    label: "도시락 제조",
-    bizType: "도시락제조업",
-    emoji: "🥡",
-  },
+const HERO_STATS = [
+  { value: "104.8만", label: "품목보고 제품" },
+  { value: "9.5만", label: "제조시설" },
+  { value: "7만", label: "레시피" },
+  { value: "1.9만", label: "식재료 데이터" },
 ] as const;
 
-const QUICK_FILTERS = [
-  { label: "스마트 HACCP ✓", href: "/facilities?haccp=1" },
-  { label: "제조시설 전체", href: "/facilities" },
-] as const;
-
-const FEATURES = [
-  { label: "제품", href: "/products", description: "제품·제조업체·스마트 HACCP 근거 연결" },
-  { label: "레시피", href: "/recipes", description: "70,000+ 식품 레시피 탐색" },
-  { label: "대체 식재료", href: "/substitutes", description: "영양·조리 유사도 기반 대체 추천" },
-  { label: "공동제조", href: "/manufacturing-brief", description: "품목·CCP·지역 근거로 후보 비교" },
-  { label: "제조시설", href: "/facilities", description: "94,000+ 제조시설과 스마트 HACCP 등록정보 검색" },
-  { label: "제품화 검토함", href: "/saved", description: "저장한 레시피·대체재료·제조후보 비교" },
-] as const;
+const BENEFITS = ["제품화 아이디어 찾기", "내 제품을 만들 공장 찾기", "더 나은 레시피 찾기"] as const;
 
 const DEVELOPMENT_FLOW = [
   { step: "1", label: "레시피 찾기", description: "만들 제품의 레시피와 재료 구성을 확인", href: "/recipes" },
@@ -57,187 +35,138 @@ export default async function HomePage() {
   const syncStatus = await getSyncStatus();
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
-      <Header />
+    <div className="home-v3-page">
+      <main>
+        <section className="home-v3-frame" aria-labelledby="hero-heading">
+          <div className="home-v3-shell">
+            <div className="home-v3-glow" aria-hidden="true" />
+            <Header variant="home" />
 
-      <main className="flex-1">
-        {/* Hero section */}
-        <section
-          className="px-4 py-16 sm:py-24"
-          style={{ background: "var(--green-100)" }}
-          aria-labelledby="hero-heading"
-        >
-          <div className="mx-auto max-w-3xl text-center">
-            <h1
-              id="hero-heading"
-              className="text-3xl sm:text-4xl font-bold leading-tight mb-4"
-              style={{ color: "var(--green-900)" }}
-            >
-              제품에서 제조업체·스마트 HACCP 근거까지
-            </h1>
-            <p
-              className="text-lg mb-8"
-              style={{ color: "var(--ink-2)" }}
-            >
-              품목보고 제품을 기준으로 실제 생산업체와 인증·공정·안전정보를 한 흐름에서 확인하세요.
-            </p>
+            <div className="home-v3-title">
+              <h1 id="hero-heading">식품 아이디어를 찾고,<br />만들 수 있는 곳까지</h1>
+            </div>
 
-            <form action="/products" method="get" className="mx-auto flex max-w-2xl gap-2" role="search" aria-label="제품 검색">
-              <input className="min-w-0 flex-1 rounded-lg border bg-white px-4 py-3" style={{ borderColor: "var(--rule)" }} type="search" name="q" placeholder="제품명·식품유형·제조업체 검색" />
-              <button className="button button--point" type="submit">제품 근거 찾기</button>
+            <div className="home-v3-hero-grid">
+              <div className="home-v3-intro">
+                <p>
+                  레시피와 대체 식재료를 탐색하고, 비슷한 제품을 실제로 만든 제조업체와
+                  스마트 HACCP·공정·안전정보까지 한곳에서 확인하세요.
+                </p>
+                <div className="home-v3-intro__actions">
+                  <Link href="/recipes">레시피로 시작하기</Link>
+                  <Link href="/facilities">제조시설 검색으로 시작하기</Link>
+                </div>
+              </div>
+
+              <div className="home-v3-hero-photo">
+                <div className="home-v3-hero-photo__halo" aria-hidden="true" />
+                <Image
+                  src="/images/home-r1/hero-expert.png"
+                  alt="식품 샘플을 들고 있는 식품 연구원"
+                  fill
+                  priority
+                  sizes="(max-width: 760px) calc(100vw - 64px), 42vw"
+                />
+              </div>
+
+              <ul className="home-v3-benefits" aria-label="주요 활용 목적">
+                {BENEFITS.map((benefit) => (
+                  <li key={benefit}><span aria-hidden="true">•••••</span><strong>{benefit}</strong></li>
+                ))}
+              </ul>
+            </div>
+
+            <form action="/products" method="get" className="home-v3-search" role="search" aria-label="제품 검색">
+              <input type="search" name="q" placeholder="제품명·식품유형·제조업체 검색" />
+              <button type="submit">제품 근거 찾기</button>
             </form>
-
-            {/* Quick filter chips */}
-            <div
-              className="flex flex-wrap justify-center gap-2 mt-6"
-              aria-label="빠른 필터"
-            >
-              {QUICK_FILTERS.map((f) => (
-                <Link
-                  key={f.label}
-                  href={f.href}
-                  className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:opacity-80"
-                  style={{
-                    background: "var(--paper)",
-                    color: "var(--green-700)",
-                    border: "1px solid var(--green-300)",
-                  }}
-                >
-                  {f.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </section>
 
-        <section className="px-4 py-10" aria-labelledby="product-flow-heading">
-          <div className="mx-auto max-w-5xl">
-            <div className="facility-results__head"><div><h2 id="product-flow-heading">제품화 검토 흐름</h2><p>제품 아이디어를 다듬고, 실제 생산 이력이 있는 제조시설까지 단계별로 검토합니다.</p></div></div>
-            <div className="product-flow-groups">
-              <section className="product-flow-group" aria-labelledby="development-flow-title">
-                <div><p className="eyebrow">PRODUCT DEVELOPMENT</p><h3 id="development-flow-title">제품 개발하기</h3><p>레시피에서 시작해 필요한 식재료의 대체안을 비교합니다.</p></div>
-                <ol className="product-flow product-flow--two" role="list">
-                  {DEVELOPMENT_FLOW.map((item) => <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>)}
-                </ol>
-              </section>
-              <section className="product-flow-group" aria-labelledby="factory-flow-title">
-                <div><p className="eyebrow">MANUFACTURING PARTNER</p><h3 id="factory-flow-title">적정 제조공장 찾기</h3><p>기존 생산 근거를 찾고, 조건에 맞는 후보를 저장해 비교합니다.</p></div>
-                <ol className="product-flow product-flow--three" role="list">
-                  {MANUFACTURING_FLOW.map((item) => <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>)}
-                </ol>
-              </section>
-            </div>
-          </div>
+        <section className="home-v3-stats" aria-label="푸드그라운드 공개 데이터 규모">
+          <dl>
+            {HERO_STATS.map((stat) => (
+              <div key={stat.label}><dd>{stat.value}<span>+</span></dd><dt>{stat.label}</dt></div>
+            ))}
+          </dl>
         </section>
 
-        {/* Popular categories */}
-        <section
-          className="px-4 py-12"
-          aria-labelledby="categories-heading"
-        >
-          <div className="mx-auto max-w-5xl">
-            <h2
-              id="categories-heading"
-              className="text-xl font-bold mb-6"
-              style={{ color: "var(--green-900)" }}
-            >
-              인기 카테고리
-            </h2>
-            <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4" role="list">
-              {POPULAR_CATEGORIES.map((cat) => (
-                <li key={cat.bizType}>
-                  <Link
-                    href={`/facilities?businessType=${encodeURIComponent(cat.bizType)}`}
-                    className="flex flex-col items-center justify-center rounded-lg p-6 text-center transition-shadow hover:shadow-md"
-                    style={{
-                      background: "var(--paper)",
-                      border: "1px solid var(--rule)",
-                    }}
-                  >
-                    <span className="text-3xl mb-2" aria-hidden="true">
-                      {cat.emoji}
-                    </span>
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: "var(--ink)" }}
-                    >
-                      {cat.label}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Feature navigation */}
-        <section
-          className="px-4 py-12 border-t"
-          style={{ borderColor: "var(--rule)" }}
-          aria-labelledby="features-heading"
-        >
-          <div className="mx-auto max-w-5xl">
-            <h2
-              id="features-heading"
-              className="text-xl font-bold mb-6"
-              style={{ color: "var(--green-900)" }}
-            >
-              주요 기능
-            </h2>
-            <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" role="list">
-              {FEATURES.map((f) => (
-                <li key={f.href}>
-                  <Link
-                    href={f.href}
-                    className="flex flex-col rounded-lg p-5 transition-shadow hover:shadow-md"
-                    style={{
-                      background: "var(--paper)",
-                      border: "1px solid var(--rule)",
-                    }}
-                  >
-                    <span
-                      className="text-sm font-semibold mb-1"
-                      style={{ color: "var(--ink)" }}
-                    >
-                      {f.label}
-                    </span>
-                    <span
-                      className="text-xs leading-snug"
-                      style={{ color: "var(--muted)" }}
-                    >
-                      {f.description}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Data sync status bar */}
-        <section
-          className="px-4 pb-8"
-          aria-label="데이터 동기화 현황"
-        >
-          <div className="mx-auto max-w-5xl">
-            <p
-              className="text-xs rounded-lg px-4 py-3"
-              style={{
-                background: "var(--green-50)",
-                color: "var(--ink-2)",
-                border: "1px solid var(--rule)",
-              }}
-            >
-              데이터 최종 동기화 · 등록정보{" "}
-              <strong>{formatDate(syncStatus.facility_at)}</strong> · 생산이력{" "}
-              <strong>{formatDate(syncStatus.production_at)}</strong> · 스마트 HACCP{" "}
-              <strong>{formatDate(syncStatus.haccp_at)}</strong> · 판매중지{" "}
-              <strong>{formatDate(syncStatus.suspension_at)}</strong>
+        <section className="home-v3-evidence" aria-labelledby="evidence-heading">
+          <div className="home-v3-evidence__head">
+            <h2 id="evidence-heading">아이디어를 제품으로<br />만드는 경로까지</h2>
+            <p>
+              81.6만 건의 제품–제조시설 연결 근거로, 비슷한 제품이 어디에서 어떤 공정으로
+              만들어졌는지 확인할 수 있습니다. 스마트 HACCP 등록 정보 308건과 제조공정
+              프로필 265건도 함께 제공합니다.
             </p>
           </div>
-        </section>
-      </main>
 
+          <div className="home-v3-evidence__visuals">
+            <article className="home-v3-visual-card home-v3-visual-card--factory">
+              <Image
+                src="/images/home-r1/manufacturing-floor.png"
+                alt="식품 제조시설 생산 현장에서 공정을 확인하는 작업자들"
+                fill
+                sizes="(max-width: 760px) calc(100vw - 40px), 50vw"
+              />
+              <strong>공개 데이터 기반 제조 탐색</strong>
+            </article>
+            <article className="home-v3-visual-card home-v3-visual-card--nutrition">
+              <Image
+                src="/images/home-r1/ingredient-lab.png"
+                alt="여러 식재료 샘플의 배합을 연구하는 작업대"
+                fill
+                sizes="(max-width: 760px) calc(100vw - 40px), 50vw"
+              />
+              <strong>영양성분 기반 대체재료 탐색</strong>
+            </article>
+          </div>
+        </section>
+
+        <section className="home-v3-capabilities" aria-labelledby="capabilities-heading">
+          <h2 id="capabilities-heading">무엇을 <span>할 수 있나요</span></h2>
+          <h3>제품화 검토 흐름</h3>
+          <p className="home-v3-capabilities__lead">제품 아이디어를 다듬고, 실제 생산 이력이 있는 제조시설까지 단계별로 검토합니다.</p>
+
+          <div className="home-v3-flow-groups">
+            <section className="home-v3-flow-group" aria-labelledby="development-flow-title">
+              <div className="home-v3-flow-group__head">
+                <p>PRODUCT DEVELOPMENT</p>
+                <h4 id="development-flow-title">제품 개발하기</h4>
+                <span>레시피에서 시작해 필요한 식재료의 대체안을 비교합니다.</span>
+              </div>
+              <ol className="home-v3-flow home-v3-flow--two">
+                {DEVELOPMENT_FLOW.map((item) => (
+                  <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="home-v3-flow-group" aria-labelledby="factory-flow-title">
+              <div className="home-v3-flow-group__head">
+                <p>MANUFACTURING PARTNER</p>
+                <h4 id="factory-flow-title">적정 제조공장 찾기</h4>
+                <span>기존 생산 근거를 찾고, 조건에 맞는 후보를 저장해 비교합니다.</span>
+              </div>
+              <ol className="home-v3-flow home-v3-flow--three">
+                {MANUFACTURING_FLOW.map((item) => (
+                  <li key={item.step}><Link href={item.href}><span>{item.step}</span><strong>{item.label}</strong><small>{item.description}</small></Link></li>
+                ))}
+              </ol>
+            </section>
+          </div>
+        </section>
+
+        <div className="home-v3-marquee" aria-hidden="true">
+          <div><span>탐색</span><b>✦</b><span>대체</span><b>✦</b><span>제조</span><b>✦</b><span>탐색</span><b>✦</b><span>대체</span><b>✦</b><span>제조</span><b>✦</b></div>
+          <div><span>탐색</span><b>✦</b><span>대체</span><b>✦</b><span>제조</span><b>✦</b><span>탐색</span><b>✦</b><span>대체</span><b>✦</b><span>제조</span><b>✦</b></div>
+        </div>
+
+        <p className="home-v3-source">
+          공개 데이터 기준 · 수치는 갱신에 따라 달라질 수 있습니다.<br />
+          등록정보 {formatDate(syncStatus.facility_at)} · 생산이력 {formatDate(syncStatus.production_at)} · 스마트 HACCP {formatDate(syncStatus.haccp_at)}
+        </p>
+      </main>
       <Footer />
     </div>
   );

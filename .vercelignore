@@ -1,0 +1,31 @@
+# Local QA and agent workspaces
+output/
+.claude/
+.moai/
+.agents/
+
+# Development, migration, and evidence sources are not runtime inputs
+docs/
+e2e/
+05-checks/
+scripts/
+supabase/
+migrations/
+data/derived/chg-g6-002/company_profile_facility_mapping.csv
+data/derived/chg-g6-002/mapping_exceptions.csv
+data/derived/chg-g6-002/mapping_summary.json
+
+# Local-only tooling and generated metadata
+playwright.config.ts
+tsconfig.tsbuildinfo
+requirements.txt
+AGENTS.md
+CLAUDE.md
+.mcp.json
+*.pdf
+/22.png
+/3.png
+
+# Secrets and local environment files
+.env*
+!.env.example

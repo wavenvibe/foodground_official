@@ -22,6 +22,12 @@ function sanitizeSearchTerm(value: string | undefined): string {
   return (value ?? "").replace(/[\u0000-\u001f]/g, " ").replace(/\s+/g, " ").trim().slice(0, MAX_QUERY_LENGTH);
 }
 
+function sanitizePostgrestContainsTerm(value: string): string {
+  // `.or()` consumes raw PostgREST filter syntax. Remove filter delimiters and
+  // wildcard characters so user input can only contribute literal search text.
+  return value.replace(/[\\\"(),%_*]/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function safeIdentifier(value: string): string {
   return value.trim().slice(0, 100);
 }
@@ -154,6 +160,7 @@ export async function searchSourceProductsViaSupabase(
   traceId: string,
 ): Promise<SourceOutcome<ProductSearchResult>> {
   const q = sanitizeSearchTerm(input.q);
+  const containsQ = sanitizePostgrestContainsTerm(q);
   const category = sanitizeSearchTerm(input.category);
   const facility = safeIdentifier(input.facility ?? "");
   const page = Math.max(1, Math.floor(input.page ?? 1));
@@ -165,11 +172,14 @@ export async function searchSourceProductsViaSupabase(
     const facilityEmbed = input.haccp ? FACILITY_EMBED_INNER : FACILITY_EMBED;
     let matchedFacilityIds: string[] = [];
 
-    // Company-name searches must resolve through the facility relation first.
-    // products_public is indexed for product_name full-text search, while the
-    // company label lives on public.facilities.  Looking up the small set of
-    // matching facility keys keeps the 1M-row product query indexed and makes
-    // the UI promise (product / company search) accurate.
+    if (q && !containsQ) {
+      return badRequest(traceId, "검색어에 사용할 수 있는 문자를 입력해 주세요.");
+    }
+
+    // Facility-name lookup complements maker_name matching for rows whose
+    // public facility label differs from the product report's maker label.
+    // The product query below combines product, maker and facility matches
+    // with OR semantics, so one match source never hides another.
     if (q) {
       const { data: facilityMatches, error: facilityMatchError } = await supabase
         .from("facilities")
@@ -186,23 +196,25 @@ export async function searchSourceProductsViaSupabase(
       matchedFacilityIds = (facilityMatches ?? []).map((row) => row.mgt_no as string);
     }
     // A facility filter uses the indexed facility_mgt_no column, so an exact
-    // count is both affordable and required for truthful facility evidence.
-    // PostgreSQL's planned count can report dozens of estimated rows even when
-    // the selected facility has no directly linked product rows.
-    const countMode: "exact" | "planned" = matchedFacilityIds.length > 0 || Boolean(facility) ? "exact" : "planned";
+    // count is affordable. Free-text search keeps planned count for broad
+    // queries; a short final page is corrected to an exact observed total.
+    const countMode: "exact" | "planned" = facility ? "exact" : "planned";
     // @MX:NOTE: count="planned" uses Postgres EXPLAIN estimate — avoids seq-scan timeout on 1M rows.
     // Exact count with reported_at ORDER caused PG 57014 (~3.9s). report_no is the PK index.
     let query = supabase
       .from("products_public")
       .select(`${PRODUCT_COLS},${facilityEmbed}`, { count: countMode });
 
-    if (q && matchedFacilityIds.length > 0) {
-      query = query.in("facility_mgt_no", matchedFacilityIds);
-    } else if (q) {
-      // textSearch uses the GIN index on product_name with simple config (plainto_tsquery equivalent).
-      // Covers Korean single-word and multi-word queries (e.g. 김치).
-      // Company names are handled by the facility-key lookup above.
-      query = query.textSearch("product_name", q, { config: "simple", type: "plain" });
+    if (q) {
+      const filters = [
+        `product_name.ilike.*${containsQ}*`,
+        `maker_name.ilike.*${containsQ}*`,
+      ];
+      const safeFacilityIds = matchedFacilityIds.filter((id) => /^[0-9A-Za-z_-]+$/.test(id));
+      if (safeFacilityIds.length > 0) {
+        filters.push(`facility_mgt_no.in.(${safeFacilityIds.join(",")})`);
+      }
+      query = query.or(filters.join(","));
     }
     if (category) query = query.eq("category", category);
     if (facility) query = query.eq("facility_mgt_no", facility);
@@ -218,7 +230,10 @@ export async function searchSourceProductsViaSupabase(
     }
 
     const items = ((data ?? []) as unknown as SupabaseProductRow[]).map(mapProduct);
-    return { ok: true, data: { items, meta: { page, pageSize, total: count ?? 0, totalIsEstimate: countMode === "planned" } }, traceId };
+    const isObservedLastPage = items.length < pageSize && (items.length > 0 || page === 1);
+    const total = isObservedLastPage ? offset + items.length : count ?? 0;
+    const totalIsEstimate = countMode === "planned" && !isObservedLastPage;
+    return { ok: true, data: { items, meta: { page, pageSize, total, totalIsEstimate } }, traceId };
   } catch (err) {
     console.warn("[supabase-products] unavailable", { traceId, reason: err instanceof Error ? err.name : "UnknownError" });
     return unavailable(traceId);
