@@ -436,3 +436,27 @@ test("VS-I-024 소스 is the first non-default category option (rank 1 from snap
   const firstNonDefault = await select.locator("option").nth(1).textContent();
   expect(firstNonDefault?.trim(), "First non-default option must be 소스 (rank 1)").toBe("소스");
 });
+
+// ---------------------------------------------------------------------------
+// VS-I-025: source-system test rows never cross the public catalog boundary.
+// ---------------------------------------------------------------------------
+test("VS-I-025 source test products are excluded from list, search, and detail", async ({ request }) => {
+  const excludedReportNos = ["11111111111001", "11111111112001", "11111111113001"];
+
+  const listRes = await request.get(`${BASE}/api/products?pageSize=20`);
+  expect(listRes.status()).toBe(200);
+  const listBody = await listRes.json();
+  const listedIds = new Set((listBody.data as Array<{ report_no: string }>).map((item) => item.report_no));
+  for (const reportNo of excludedReportNos) expect(listedIds.has(reportNo)).toBe(false);
+
+  const searchRes = await request.get(`${BASE}/api/products?q=${encodeURIComponent("식약처TEST업소")}&pageSize=20`);
+  expect(searchRes.status()).toBe(200);
+  const searchBody = await searchRes.json();
+  expect(searchBody.data).toHaveLength(0);
+  expect(searchBody.meta.total).toBe(0);
+
+  for (const reportNo of excludedReportNos) {
+    const detailRes = await request.get(`${BASE}/api/products/${reportNo}`);
+    expect(detailRes.status(), `Excluded product ${reportNo} must not have a public detail`).toBe(404);
+  }
+});
